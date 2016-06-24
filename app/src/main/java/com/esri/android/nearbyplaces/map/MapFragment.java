@@ -13,6 +13,7 @@ import com.esri.android.nearbyplaces.data.Place;
 import com.esri.android.nearbyplaces.places.PlacesContract;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.Basemap;
+import com.esri.arcgisruntime.mapping.view.LocationDisplay;
 import com.esri.arcgisruntime.mapping.view.MapView;
 
 import java.util.List;
@@ -27,6 +28,8 @@ public class MapFragment extends Fragment implements  MapContract.View {
   private FrameLayout mMapLayout;
 
   private MapView mMapView;
+
+  private LocationDisplay mLocationDisplay;
 
   public MapFragment(){
 
@@ -47,11 +50,26 @@ public class MapFragment extends Fragment implements  MapContract.View {
       Bundle savedInstance){
 
     View root = layoutInflater.inflate(R.layout.map_fragment, container,false);
+    setUpMapView(root);
+    return root;
+  }
+
+  /**
+   * Add the map to the view and set up location display
+   * @param root View
+   */
+  private void setUpMapView(View root){
+
     mMapView = (MapView) root.findViewById(R.id.map);
-    ArcGISMap map = new ArcGISMap(Basemap.Type.TOPOGRAPHIC, 34.056295, -117.195800, 16);
+    mLocationDisplay = mMapView.getLocationDisplay();
+    mLocationDisplay.setAutoPanMode(LocationDisplay.AutoPanMode.NAVIGATION);
+
+    mPresenter.setLocationDisplay(mLocationDisplay);
+
+    Basemap basemap = Basemap.createStreets();
+    ArcGISMap map = new ArcGISMap(basemap);
     mMapView.setMap(map);
 
-    return root;
   }
 
   @Override public void showAllPlacesOnMap(List<Place> placeList) {
@@ -63,10 +81,24 @@ public class MapFragment extends Fragment implements  MapContract.View {
   }
 
   @Override public MapView getMapView() {
-    return null;
+    return mMapView;
   }
 
-  @Override public void setPresenter(PlacesContract.Presenter presenter) {
+  @Override public void setPresenter(MapContract.Presenter presenter) {
+    mPresenter = presenter;
 
+  }
+  @Override
+  public void onResume(){
+    super.onResume();
+    mMapView.resume();
+    mLocationDisplay.startAsync();
+  }
+
+  @Override
+  public void onPause(){
+    mMapView.pause();
+    mLocationDisplay.stop();
+    super.onPause();
   }
 }
