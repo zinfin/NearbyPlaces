@@ -2,18 +2,22 @@ package com.esri.android.nearbyplaces.places;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
+import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
+import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import com.esri.android.nearbyplaces.Injection;
 import com.esri.android.nearbyplaces.R;
+import com.esri.android.nearbyplaces.map.MapFragment;
 import com.esri.android.nearbyplaces.util.ActivityUtils;
 
 /**
@@ -23,6 +27,7 @@ public class PlacesActivity extends AppCompatActivity implements ActivityCompat.
 
   private static final int PERMISSION_REQUEST_LOCATION = 0;
   private View mLayout;
+  private PageAdapter mPageAdapter;
   private PlacesPresenter mPlacePresenter;
 
 
@@ -30,24 +35,55 @@ public class PlacesActivity extends AppCompatActivity implements ActivityCompat.
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
-    setContentView(R.layout.places_activity);
+    setContentView(R.layout.main_layout);
 
     // Set up the toolbar.
-  /*  Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
-    ActionBar ab = getSupportActionBar();
-    ab.setDisplayHomeAsUpEnabled(true);*/
 
-    PlacesFragment placesFragment = (PlacesFragment) getSupportFragmentManager().findFragmentById(R.id.placesContainer) ;
-    if (placesFragment == null){
-      // Create the fragment
-      placesFragment = PlacesFragment.newInstance();
-      ActivityUtils.addFragmentToActivity(
-          getSupportFragmentManager(), placesFragment, R.id.contentFrame);
+
+
+    final ViewPager viewPager = (ViewPager) findViewById(R.id.pager) ;
+    if (viewPager != null){
+      setUpViewPager(viewPager);
     }
+
+
+    // Set up tabs in the main page, one for the list
+    // of place the second tab for the map view
+    TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
+    tabLayout.setupWithViewPager(viewPager);
 
     // request location permission
     requestLocationPermission();
+
+
+  }
+  /**
+   * Configure tab layout
+   */
+  private void setUpViewPager(ViewPager viewPager){
+    mPageAdapter = new PageAdapter(getSupportFragmentManager());
+    PlacesFragment placesFragment = (PlacesFragment) getSupportFragmentManager().findFragmentById(R.id.placesContainer) ;
+
+    if (placesFragment == null){
+      // Create the fragment
+      placesFragment = PlacesFragment.newInstance();
+     /* ActivityUtils.addFragmentToActivity(
+          getSupportFragmentManager(), placesFragment, R.id.contentFrame);*/
+    }
+    mPageAdapter.addFragment(placesFragment, "LIST");
+
+    MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_container);
+
+    if (mapFragment == null){
+      mapFragment = MapFragment.newInstance();
+    }
+
+    mPageAdapter.addFragment(mapFragment,"MAP");
+
+    mPageAdapter.notifyDataSetChanged();
+    viewPager.setAdapter(mPageAdapter);
 
     mPlacePresenter = new PlacesPresenter(Injection.providePlacesRepository(getApplicationContext()), placesFragment);
   }

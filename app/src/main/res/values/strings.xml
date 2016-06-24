@@ -1,4 +1,8 @@
 <resources>
-    <string name="app_name">NearbyPlaces</string>
+    <string name="app_name">Nearby Places</string>
     <string name="action_settings">Settings</string>
+
+    <!-- Tab Item names -->
+    <string name="tab1">List</string>
+    <string name="tab2">Map</string>
 </resources>

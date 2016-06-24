@@ -16,7 +16,6 @@ import com.esri.android.nearbyplaces.data.Place;
 import com.esri.arcgisruntime.tasks.geocode.GeocodeParameters;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -43,7 +42,6 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
   public void onCreate(@NonNull Bundle savedInstanceState){
     super.onCreate(savedInstanceState);
     List<Place> placeList = new ArrayList<>();
-
     mPlaceAdapter = new PlacesAdapter(getContext(), R.id.placesContainer,placeList);
 
   }
@@ -62,7 +60,7 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
     mPlacesView = (LinearLayout) root.findViewById(R.id.placesLinearLayout);
 
     // Set up progress indicator
-  /*  final ScrollChildSwipeRefreshLayout swipeRefreshLayout =
+    final ScrollChildSwipeRefreshLayout swipeRefreshLayout =
         (ScrollChildSwipeRefreshLayout) root.findViewById(R.id.refresh_layout);
     swipeRefreshLayout.setColorSchemeColors(
         ContextCompat.getColor(getActivity(), R.color.colorPrimary),
@@ -74,10 +72,10 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
 
     swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
       @Override public void onRefresh() {
-        mPresenter.loadPlaces(false ,new GeocodeParameters());
+        mPresenter.loadPlaces(true ,new GeocodeParameters());
       }
     });
-*/
+
     return root;
   }
 
@@ -93,7 +91,7 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
 
   PlaceItemListener mItemListener = new PlaceItemListener() {
     @Override public void onPlaceClick(Place clickedPlace) {
-
+      // Show place detail with map
     }
   };
 
@@ -108,7 +106,7 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
       return;
     }
 
-  /*  final SwipeRefreshLayout srl = (SwipeRefreshLayout) getView().findViewById(R.id.refresh_layout);
+    final SwipeRefreshLayout srl = (SwipeRefreshLayout) getView().findViewById(R.id.refresh_layout);
 
     // Make sure setRefreshing() is called after the layout is done with everything else.
     srl.post(new Runnable() {
@@ -116,7 +114,7 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
       public void run() {
         srl.setRefreshing(active);
       }
-    });*/
+    });
   }
 
   @Override public boolean isActive() {

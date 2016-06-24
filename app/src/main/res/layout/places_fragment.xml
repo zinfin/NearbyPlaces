@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!---com.esri.android.nearbyplaces.places.ScrollChildSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<com.esri.android.nearbyplaces.places.ScrollChildSwipeRefreshLayout xmlns:android="http://schemas.android.com/apk/res/android"
                                                                     android:layout_width="match_parent"
                                                                     android:id="@+id/refresh_layout"
-                                                                    android:layout_height="match_parent"-->
+                                                                    android:layout_height="wrap_content">
 
 <RelativeLayout
         android:id="@+id/placesContainer"
@@ -33,4 +33,4 @@
         </LinearLayout>
 </RelativeLayout>
 
-<!--/com.esri.android.nearbyplaces.places.ScrollChildSwipeRefreshLayout-->
+</com.esri.android.nearbyplaces.places.ScrollChildSwipeRefreshLayout>
