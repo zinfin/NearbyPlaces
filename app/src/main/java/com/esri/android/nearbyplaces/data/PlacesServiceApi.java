@@ -20,13 +20,15 @@ import java.util.List;
 
 public interface PlacesServiceApi {
 
-  interface PlacesServiceCallback<T>{  // callback from server
+  interface PlacesServiceCallback<List>{  // callback from server
 
-   void onLoaded(T places);
+   void onLoaded(List places);
 
   }
 
+
   void getPlaces(@NonNull GeocodeParameters parameters, @NonNull PlacesServiceCallback callback);
+  Place getPlaceDetail(String placeName);
 
 
 }

@@ -62,9 +62,11 @@ public class MapFragment extends Fragment implements  MapContract.View {
 
     mMapView = (MapView) root.findViewById(R.id.map);
     mLocationDisplay = mMapView.getLocationDisplay();
-    mLocationDisplay.setAutoPanMode(LocationDisplay.AutoPanMode.NAVIGATION);
+
 
     mPresenter.setLocationDisplay(mLocationDisplay);
+    mLocationDisplay.setAutoPanMode(LocationDisplay.AutoPanMode.NAVIGATION);
+    mLocationDisplay.startAsync();
 
     Basemap basemap = Basemap.createStreets();
     ArcGISMap map = new ArcGISMap(basemap);

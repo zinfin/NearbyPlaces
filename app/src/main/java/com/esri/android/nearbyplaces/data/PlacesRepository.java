@@ -23,6 +23,8 @@ public interface PlacesRepository {
     void onDataNotAvailabe();
   }
 
-  void getPlaces(@NonNull GeocodeParameters parameters, @NonNull LoadPlacesCallback callback);
+  void getPlaces(@NonNull LoadPlacesCallback callback);
+
+  Place getPlaceDetail(String placeName);
 
 }

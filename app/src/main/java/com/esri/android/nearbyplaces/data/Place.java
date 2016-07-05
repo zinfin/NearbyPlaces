@@ -34,31 +34,43 @@ public final class Place {
     this.mBearing = bearing;
   }
 
-  public String getmName() {
+  public String getName() {
     return mName;
   }
 
-  @Nullable public String getmType() {
+  @Nullable public String getType() {
     return mType;
   }
 
-  @Nullable public Point getmLocation() {
+  @Nullable public Point getLocation() {
     return mLocation;
   }
 
-  @Nullable public String getmAddress() {
+  @Nullable public String getAddress() {
     return mAddress;
   }
 
-  @Nullable public String getmURL() {
+  @Nullable public String getURL() {
     return mURL;
   }
 
-  @Nullable public String getmPhone() {
+  @Nullable public String getPhone() {
     return mPhone;
   }
 
-  @Nullable public String getmBearing() {
+  @Nullable public String getBearing() {
     return mBearing;
+  }
+
+  @Override public String toString() {
+    return "Place{" +
+        "mName='" + mName + '\'' +
+        ", mType='" + mType + '\'' +
+        ", mLocation=" + mLocation +
+        ", mAddress='" + mAddress + '\'' +
+        ", mURL='" + mURL + '\'' +
+        ", mPhone='" + mPhone + '\'' +
+        ", mBearing='" + mBearing + '\'' +
+        '}';
   }
 }

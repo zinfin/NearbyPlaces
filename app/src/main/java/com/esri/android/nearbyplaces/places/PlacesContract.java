@@ -15,7 +15,7 @@ public interface PlacesContract {
 
   interface View extends BaseView<Presenter> {
 
-    void showPlaceDetail(String placeName);
+    void showPlaceDetail(Place place);
 
     void showPlaces(List<Place> places);
 
@@ -26,7 +26,7 @@ public interface PlacesContract {
 
   interface Presenter extends BasePresenter {
 
-    void loadPlaces(boolean showIndicator, GeocodeParameters parameters);
+    void loadPlaces(boolean showIndicator);
 
     void setFiltering(PlaceFilterType filterType);
 

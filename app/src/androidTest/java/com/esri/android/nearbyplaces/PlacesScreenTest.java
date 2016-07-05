@@ -37,7 +37,7 @@ public class PlacesScreenTest {
         protected void beforeActivityLaunched() {
           super.beforeActivityLaunched();
           // Doing this in @Before generates a race condition.
-          Injection.providePlacesDataSource(InstrumentationRegistry.getTargetContext()).deleteAllPlaces();
+          //Injection.providePlacesRepository(InstrumentationRegistry.getTargetContext()).deleteAllPlaces();
         }
       };
 

@@ -23,12 +23,11 @@ public class InMemoryPlacesRepository implements PlacesRepository {
   @VisibleForTesting
   List<Place> mCachedPlaces;
 
-  @Override public void getPlaces(@NonNull final GeocodeParameters parameters,
-      @NonNull final LoadPlacesCallback callback) {
-    checkNotNull(parameters);
+  @Override public void getPlaces(@NonNull final LoadPlacesCallback callback) {
+
     checkNotNull(callback);
     if (mCachedPlaces == null){
-      mPlacesServiceApi.getPlaces(parameters, new PlacesServiceApi.PlacesServiceCallback<List<Place>>() {
+      mPlacesServiceApi.getPlaces( new GeocodeParameters(), new PlacesServiceApi.PlacesServiceCallback<List<Place>>() {
         @Override public void onLoaded(List<Place> places) {
           mCachedPlaces = ImmutableList.copyOf(places);
           callback.onPlacesLoaded(mCachedPlaces);
@@ -39,5 +38,15 @@ public class InMemoryPlacesRepository implements PlacesRepository {
     }
   }
 
+  @Override public Place getPlaceDetail(String placeName) {
+    Place foundPlace = null;
+    for (Place p: mCachedPlaces){
+      if (p.getName().equalsIgnoreCase(placeName)){
+        foundPlace = p;
+        break;
+      }
+    }
+    return foundPlace;
+  }
 
 }

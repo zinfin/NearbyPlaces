@@ -19,7 +19,7 @@ public final class PlacesServiceApiEndpoint {
 
   private static void addPlace(String placeName, String type, Point location, String address, String URL, String phone, String bearing){
     Place newPlace = new Place(placeName, type, location, address, URL, phone, bearing );
-    DATA.put(newPlace.getmName(), newPlace);
+    DATA.put(newPlace.getName(), newPlace);
   }
 
   /**

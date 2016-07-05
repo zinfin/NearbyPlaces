@@ -1,6 +1,7 @@
 package com.esri.android.nearbyplaces.places;
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -13,7 +14,6 @@ import android.view.ViewGroup;
 import android.widget.*;
 import com.esri.android.nearbyplaces.R;
 import com.esri.android.nearbyplaces.data.Place;
-import com.esri.arcgisruntime.tasks.geocode.GeocodeParameters;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -72,7 +72,7 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
 
     swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
       @Override public void onRefresh() {
-        mPresenter.loadPlaces(true ,new GeocodeParameters());
+        mPresenter.loadPlaces(true );
       }
     });
 
@@ -85,8 +85,8 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
     mPresenter.start();
   }
 
-  @Override public void showPlaceDetail(String placeName) {
-
+  @Override public void showPlaceDetail(Place place) {
+    Intent detailIntent = new Intent();
   }
 
   PlaceItemListener mItemListener = new PlaceItemListener() {
@@ -161,7 +161,7 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
       final Place place= (Place) getItem(position);
 
       TextView titleTV = (TextView) rowView.findViewById(R.id.placeName);
-      titleTV.setText(place.getmName());
+      titleTV.setText(place.getName());
 
     /*  rowView.setOnClickListener(new View.OnClickListener() {
         @Override

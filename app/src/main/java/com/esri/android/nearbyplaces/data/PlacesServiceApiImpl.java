@@ -19,9 +19,8 @@ public class PlacesServiceApiImpl implements  PlacesServiceApi{
   private static final int SERVICE_LATENCY_IN_MILLIS = 2000;
   private static final ArrayMap<String,Place> PLACES_SERVICE_DATA = PlacesServiceApiEndpoint.loadPersistedPlaces();
 
-  @Override public void getPlaces(@NonNull GeocodeParameters parameters,
-      final @NonNull PlacesServiceCallback callback) {
-    checkNotNull(parameters);
+  @Override public void getPlaces(final @NonNull GeocodeParameters parameters, final @NonNull PlacesServiceCallback callback) {
+
     checkNotNull(callback);
     // Simulate network by delaying the execution.
     Handler handler = new Handler();
@@ -33,4 +32,11 @@ public class PlacesServiceApiImpl implements  PlacesServiceApi{
       }
     }, SERVICE_LATENCY_IN_MILLIS);
   }
+
+  @Override public Place getPlaceDetail(String placeName) {
+    return null;
+  }
+
+
+
 }

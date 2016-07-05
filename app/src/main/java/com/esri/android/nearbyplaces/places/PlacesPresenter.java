@@ -30,7 +30,7 @@ public class PlacesPresenter implements PlacesContract.Presenter {
   }
 
 
-  @Override public void loadPlaces(final boolean showLoadingIndicator, final GeocodeParameters parameters) {
+  @Override public void loadPlaces(final boolean showLoadingIndicator) {
     if (showLoadingIndicator){
       mPlacesView.showProgressIndicator(true);
     }
@@ -39,11 +39,12 @@ public class PlacesPresenter implements PlacesContract.Presenter {
     EspressoIdlingResource.increment(); // App is busy until further notice
 
 
-    mPlacesDataSource.getPlaces(parameters, new PlacesRepository.LoadPlacesCallback() {
+    mPlacesDataSource.getPlaces(new PlacesRepository.LoadPlacesCallback() {
       @Override public void onPlacesLoaded(List<Place> places) {
         if (!EspressoIdlingResource.getIdlingResource().isIdleNow()){
           EspressoIdlingResource.decrement();
         }
+        mPlacesView.showProgressIndicator(false);
         mPlacesView.showPlaces(places);
       }
 
@@ -68,11 +69,13 @@ public class PlacesPresenter implements PlacesContract.Presenter {
   }
 
   @Override public void loadPlaceDetail(String placeName) {
+    // Do some logic here to retrieve details of the place
 
+    mPlacesView.showPlaceDetail(mPlacesDataSource.getPlaceDetail(placeName));
   }
 
   @Override public void start() {
-    loadPlaces(false, new GeocodeParameters());
+    //loadPlaces(true );
 
   }
 }

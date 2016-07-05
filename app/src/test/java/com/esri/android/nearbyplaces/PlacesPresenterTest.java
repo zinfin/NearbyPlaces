@@ -2,10 +2,8 @@ package com.esri.android.nearbyplaces;
 
 import com.esri.android.nearbyplaces.data.Place;
 import com.esri.android.nearbyplaces.data.PlacesRepository;
-import com.esri.android.nearbyplaces.data.PlacesServiceApi;
 import com.esri.android.nearbyplaces.places.PlacesContract;
 import com.esri.android.nearbyplaces.places.PlacesPresenter;
-import com.esri.arcgisruntime.tasks.geocode.GeocodeParameters;
 import com.google.common.collect.Lists;
 import org.junit.Before;
 import org.junit.Test;
@@ -19,6 +17,7 @@ import java.util.List;
 import static org.junit.Assert.*;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static org.mockito.Matchers.any;
 
 /**
  * To work on unit tests, switch the Test Artifact in the Build Variants view.
@@ -34,12 +33,13 @@ public class PlacesPresenterTest {
   @Mock
   private PlacesContract.View mPlacesView;
 
+
   /**
    * {@link ArgumentCaptor} is a powerful Mockito API to capture argument values and use them to
    * perform further actions or assertions on them.
    */
   @Captor
-  private ArgumentCaptor<PlacesServiceApi.PlacesServiceCallback> mPlacesServiceCallbackCaptor;
+  private ArgumentCaptor<PlacesRepository.LoadPlacesCallback> mPlacesServiceCallbackCaptor;
 
   @Before
   public void setupTasksPresenter() {
@@ -62,21 +62,32 @@ public class PlacesPresenterTest {
   @Test
   public void loadPlacesIntoView(){
 
-    // When clicking on a place in the list of geocoded com.esri.android.nearbyplaces.places
-    mPlacesPresenter.loadPlaces(true, new GeocodeParameters());
+    // When view is first shown, load list of places
+    mPlacesPresenter.loadPlaces(true);
 
-    // Callback is captured and invoked with stubbed tasks
-   /* verify(mPlacesDataSource).getPlaces(new GeocodeParameters(), );
-    mLoadPlacesCallbackCaptor.getValue().onLoaded(PLACES);
-
-    // Then progress indicator is shown
+    // While loading places, a progress indicator is shown
     verify(mPlacesView).showProgressIndicator(true);
+
+    // Callback is captured and invoked with stubbed places (PLACES)
+    verify(mPlacesDataSource).getPlaces( mPlacesServiceCallbackCaptor.capture());
+    mPlacesServiceCallbackCaptor.getValue().onPlacesLoaded(PLACES);
+
     // Then progress indicator is hidden and all places are shown in UI
     verify(mPlacesView).showProgressIndicator(false);
     ArgumentCaptor<List> showPlacesListArgumentCaptor = ArgumentCaptor.forClass(List.class);
     verify(mPlacesView).showPlaces(showPlacesListArgumentCaptor.capture());
-    assertTrue(showPlacesListArgumentCaptor.getValue().size() == 3);*/
-
+    assertTrue(showPlacesListArgumentCaptor.getValue().size() == 3);
   }
 
+  @Test
+  public void loadPlaceDetail(){
+    // Make up a stubbed place, exclude the Point since mockito can't deal with final classes.
+    Place place = new Place("Powell's Books", "bookstore", null, "1055 W Burnside Portland, OR 97209",null, "(503) 228-4651", "NE");
+
+    // Open the place detail
+    mPlacesPresenter.loadPlaceDetail(place.getName());
+
+    // Then verify that UI would show detailed place
+    verify(mPlacesView).showPlaceDetail(any(Place.class));
+  }
 }
