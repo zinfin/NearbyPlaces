@@ -5,6 +5,7 @@ import com.esri.android.nearbyplaces.BaseView;
 import com.esri.android.nearbyplaces.data.Place;
 import com.esri.android.nearbyplaces.places.PlaceFilterType;
 import com.esri.android.nearbyplaces.places.PlacesContract;
+import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.LocationDisplay;
 import com.esri.arcgisruntime.mapping.view.MapView;
 
@@ -17,11 +18,11 @@ public interface MapContract {
 
   interface View extends BaseView<Presenter>{
 
-    void showAllPlacesOnMap(List<Place> placeList);
-
-    void showPlaceDetail(Place place);
+    void showNearbyPlaces(List<Place> placeList);
 
     MapView getMapView();
+
+    LocationDisplay getLocationDisplay();
 
   }
 
@@ -29,8 +30,7 @@ public interface MapContract {
 
     void findPlacesNearby();
 
-    void filterPlacesNearby(PlaceFilterType filter);
 
-    void setLocationDisplay(LocationDisplay locationDisplay);
+
   }
 }

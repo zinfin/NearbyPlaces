@@ -3,6 +3,8 @@ package com.esri.android.nearbyplaces.places;
 import com.esri.android.nearbyplaces.BasePresenter;
 import com.esri.android.nearbyplaces.BaseView;
 import com.esri.android.nearbyplaces.data.Place;
+import com.esri.arcgisruntime.mapping.view.LocationDisplay;
+import com.esri.arcgisruntime.mapping.view.MapView;
 import com.esri.arcgisruntime.tasks.geocode.GeocodeParameters;
 
 import java.util.List;
@@ -15,21 +17,19 @@ public interface PlacesContract {
 
   interface View extends BaseView<Presenter> {
 
-    void showPlaceDetail(Place place);
 
-    void showPlaces(List<Place> places);
+    void showNearbyPlaces(List<Place> places);
 
     void showProgressIndicator(boolean active);
 
     boolean isActive();
+
+
   }
 
   interface Presenter extends BasePresenter {
 
-    void loadPlaces(boolean showIndicator);
+    void setPlacesNearby(List<Place> places);
 
-    void setFiltering(PlaceFilterType filterType);
-
-    void loadPlaceDetail(String placeName);
   }
 }

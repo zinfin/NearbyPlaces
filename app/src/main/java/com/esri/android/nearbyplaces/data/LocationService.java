@@ -4,6 +4,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.location.LocationDataSource;
 import com.esri.arcgisruntime.tasks.geocode.GeocodeParameters;
 import com.esri.arcgisruntime.tasks.geocode.GeocodeResult;
 import com.esri.arcgisruntime.tasks.geocode.LocatorInfo;
@@ -18,6 +19,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public class LocationService implements PlacesServiceApi {
 
+  private final static String TAG = LocationService.class.getSimpleName();
   private static LocatorTask mLocatorTask;
   private static LocationService instance = null;
 
@@ -50,6 +52,7 @@ public class LocationService implements PlacesServiceApi {
     provisionOutputAttributes(parameters);
     provisionCategories(parameters);
     final ListenableFuture<List<GeocodeResult>> results = mLocatorTask.geocodeAsync(searchText, parameters);
+    Log.i(TAG,"Geocode search started...");
    // final ListenableFuture<List<GeocodeResult>> results = mLocatorTask.geocodeAsync(searchText);
     results.addDoneListener(new Runnable() {
       @Override public void run() {
@@ -104,6 +107,8 @@ public class LocationService implements PlacesServiceApi {
     List<String> categories = parameters.getCategories();
     categories.add("Bookstore");
     categories.add("Food");
+    categories.add("Hotel");
+    categories.add("Bar or Pub");
 
     return parameters;
   }

@@ -5,4 +5,7 @@
     <!-- Tab Item names -->
     <string name="tab1">List</string>
     <string name="tab2">Map</string>
+
+    <!-- Service URLs -->
+    <string name="geocode_service_url">http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer</string>
 </resources>

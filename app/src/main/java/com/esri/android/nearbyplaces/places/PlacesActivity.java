@@ -2,29 +2,24 @@ package com.esri.android.nearbyplaces.places;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.pdf.PdfDocument;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
 import android.support.v4.view.ViewPager;
-import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
 import com.esri.android.nearbyplaces.R;
-import com.esri.android.nearbyplaces.data.Injection;
 import com.esri.android.nearbyplaces.map.MapFragment;
 import com.esri.android.nearbyplaces.map.MapPresenter;
-import com.esri.android.nearbyplaces.util.ActivityUtils;
+import com.esri.android.nearbyplaces.mapplace.MapPlaceMediator;
 
 /**
  * Created by sand8529 on 6/16/16.
  */
-public class PlacesActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback  {
+public class PlacesActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback{
 
   private static final int PERMISSION_REQUEST_LOCATION = 0;
   private View mLayout;
@@ -85,8 +80,9 @@ public class PlacesActivity extends AppCompatActivity implements ActivityCompat.
     mPageAdapter.notifyDataSetChanged();
     viewPager.setAdapter(mPageAdapter);
 
-    mPlacePresenter = new PlacesPresenter( Injection.providePlacesRepository(getApplicationContext()), placesFragment);
-    mMapPresenter = new MapPresenter(mapFragment);
+    MapPlaceMediator mapPlacePresenter = new MapPlaceMediator();
+    mPlacePresenter = new PlacesPresenter( placesFragment, mapPlacePresenter);
+    mMapPresenter = new MapPresenter(mapFragment, mapPlacePresenter);
   }
 
   /**
@@ -150,4 +146,5 @@ public class PlacesActivity extends AppCompatActivity implements ActivityCompat.
       }
     }
   }
+
 }

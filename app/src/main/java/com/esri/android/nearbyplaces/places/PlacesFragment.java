@@ -72,7 +72,7 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
 
     swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
       @Override public void onRefresh() {
-        mPresenter.loadPlaces(true );
+        //
       }
     });
 
@@ -85,9 +85,6 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
     mPresenter.start();
   }
 
-  @Override public void showPlaceDetail(Place place) {
-    Intent detailIntent = new Intent();
-  }
 
   PlaceItemListener mItemListener = new PlaceItemListener() {
     @Override public void onPlaceClick(Place clickedPlace) {
@@ -95,7 +92,7 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
     }
   };
 
-  @Override public void showPlaces(List<Place> places) {
+  @Override public void showNearbyPlaces(List<Place> places) {
     mPlaceAdapter.setPlaces(places);
     mPlaceAdapter.notifyDataSetChanged();
     mPlacesView.setVisibility(View.VISIBLE);
@@ -176,4 +173,6 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
   public interface PlaceItemListener{
     void onPlaceClick(Place clickedPlace);
   }
+
+
 }
