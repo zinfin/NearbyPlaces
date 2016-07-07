@@ -2,20 +2,27 @@ package com.esri.android.nearbyplaces.places;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
 import com.esri.android.nearbyplaces.R;
+import com.esri.android.nearbyplaces.data.CategoryHelper;
 import com.esri.android.nearbyplaces.data.Place;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -29,7 +36,9 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
 
   private PlacesAdapter mPlaceAdapter;
 
-  private LinearLayout mPlacesView;
+  private RecyclerView mPlacesView;
+
+  private static final String TAG = PlacesFragment.class.getSimpleName();
 
   public PlacesFragment(){
 
@@ -51,16 +60,21 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
   public View onCreateView(LayoutInflater inflater, ViewGroup container,
       Bundle savedInstance){
 
-    View root = inflater.inflate(R.layout.places_fragment, container, false);
+    mPlacesView= (RecyclerView) inflater.inflate(
+        R.layout.places_fragment2, container, false);
+
+    mPlacesView.setLayoutManager(new LinearLayoutManager(mPlacesView.getContext()));
+    mPlacesView.setAdapter(mPlaceAdapter);
+    //View root = inflater.inflate(R.layout.places_fragment, container, false);
 
     // Places list
-    ListView placesList = (ListView) root.findViewById(R.id.places_list);
-    placesList.setAdapter(mPlaceAdapter);
+   // ListView placesList = (ListView) root.findViewById(R.id.places_list);
+    //placesList.setAdapter(mPlaceAdapter);
 
-    mPlacesView = (LinearLayout) root.findViewById(R.id.placesLinearLayout);
+   // mPlacesView = (LinearLayout) root.findViewById(R.id.placesLinearLayout);
 
     // Set up progress indicator
-    final ScrollChildSwipeRefreshLayout swipeRefreshLayout =
+  /*  final ScrollChildSwipeRefreshLayout swipeRefreshLayout =
         (ScrollChildSwipeRefreshLayout) root.findViewById(R.id.refresh_layout);
     swipeRefreshLayout.setColorSchemeColors(
         ContextCompat.getColor(getActivity(), R.color.colorPrimary),
@@ -68,17 +82,23 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
         ContextCompat.getColor(getActivity(), R.color.colorPrimaryDark)
     );
     // Set the scrolling view in the custom SwipeRefreshLayout.
-    swipeRefreshLayout.setScrollUpChild(placesList);
+    //swipeRefreshLayout.setScrollUpChild(placesList);
 
-    swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+   /* swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
       @Override public void onRefresh() {
-        //
+        // Refresh the list by initiating a search for places.
+        Toast.makeText(getContext(),"Refreshing", Toast.LENGTH_SHORT);
+        Log.i(TAG,"Swiping to refreshing");
       }
     });
 
-    return root;
+*/
+    return mPlacesView;
   }
 
+  private void setUpRecyclerView(){
+
+  }
   @Override
   public void onResume() {
     super.onResume();
@@ -122,57 +142,85 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
     mPresenter = checkNotNull(presenter);
   }
 
-  public static class PlacesAdapter extends ArrayAdapter<Place> {
+  public  class PlacesAdapter extends RecyclerView.Adapter<RecyclerViewHolder> {
 
-    private List<Place> mPlaces;
+    private List<Place> mPlaces = Collections.emptyList();
     private PlaceItemListener mPlaceItemListener;
-    public PlacesAdapter(Context context, int resource, List<Place> objects){
-      super(context, resource, objects);
-      mPlaces = objects;
-     // mPlaceItemListener = placeListener;
+    public PlacesAdapter(Context context, int resource, List<Place> places){
+      mPlaces = places;
+
     }
 
     public void setPlaces(List<Place> places){
       checkNotNull(places);
       mPlaces = places;
+      notifyDataSetChanged();
     }
 
-    @Override public int getCount() {
+    @Override public RecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+      LayoutInflater inflater = LayoutInflater.from(parent.getContext());
+      View itemView = inflater.inflate(R.layout.place, parent, false);
+      return new RecyclerViewHolder(itemView);
+    }
+
+    @Override public void onBindViewHolder(RecyclerViewHolder holder, int position) {
+      Place place = mPlaces.get(position);
+      holder.placeName.setText(place.getName());
+      holder.address.setText(place.getAddress());
+      Drawable drawable = assignIcon(position);
+      holder.icon.setImageDrawable(drawable);
+    }
+
+    @Override public int getItemCount() {
       return mPlaces.size();
     }
 
-    @Override public Place getItem(int position) {
-      return mPlaces.get(position);
-    }
-
-    @Override public long getItemId(int position) {
-      return position;
-    }
-
-    @Override public View getView(int position, View convertView, ViewGroup parent) {
-      View rowView = convertView;
-      if (rowView == null) {
-        LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-        rowView = inflater.inflate(R.layout.place, parent, false);
+    private Drawable assignIcon(int position){
+      Place p = mPlaces.get(position);
+      String placeType = p.getType();
+      String category =  CategoryHelper.getCategoryForFoodType(placeType);
+      Drawable d = null;
+      switch (category){
+        case "Pizza":
+          d = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_local_pizza_black_24dp,null);
+          break;
+        case "Hotel":
+          d = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_hotel_black_24dp,null);
+          break;
+        case "Food":
+          d = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_local_dining_black_24dp,null);
+          break;
+        case "Bar or Pub":
+          d = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_local_bar_black_24dp,null);
+          break;
+        case "Bookstore":
+          d = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_place_black_24dp,null);
+          break;
+        case "Coffee Shop":
+          d = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_local_cafe_black_24dp,null);
+          break;
+        default:
+          d = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_place_black_24dp,null);
       }
-      final Place place= (Place) getItem(position);
-
-      TextView titleTV = (TextView) rowView.findViewById(R.id.placeName);
-      titleTV.setText(place.getName());
-
-    /*  rowView.setOnClickListener(new View.OnClickListener() {
-        @Override
-        public void onClick(View view) {
-          mPlaceItemListener.onPlaceClick(place);
-        }
-      });*/
-
-      return rowView;
+      return d;
     }
   }
   public interface PlaceItemListener{
     void onPlaceClick(Place clickedPlace);
   }
 
+  public class RecyclerViewHolder extends RecyclerView.ViewHolder {
+
+    public TextView placeName;
+    public TextView address;
+    public ImageView icon;
+
+    public RecyclerViewHolder(View itemView) {
+      super(itemView);
+      placeName = (TextView) itemView.findViewById(R.id.placeName);
+      address = (TextView) itemView.findViewById(R.id.placeAddress);
+      icon = (ImageView) itemView.findViewById(R.id.placeTypeIcon);
+    }
+  }
 
 }

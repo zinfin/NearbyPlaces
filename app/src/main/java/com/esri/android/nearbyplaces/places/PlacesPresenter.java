@@ -28,10 +28,13 @@ public class PlacesPresenter implements PlacesContract.Presenter {
 
 
   @Override public void start() {
-
+    // not called.
   }
 
-
+  /**
+   * Delegates the display of places to the view
+   * @param places List<Place> items
+   */
   @Override public void setPlacesNearby(List<Place> places) {
     mPlacesView.showNearbyPlaces(places);
   }

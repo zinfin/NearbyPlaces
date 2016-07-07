@@ -8,4 +8,11 @@
 
     <!-- Service URLs -->
     <string name="geocode_service_url">http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer</string>
+
+    <!-- Search categories for geocoding -->
+    <string name="bookstore">Bookstore</string>
+    <string name="food">Food</string>
+    <string name="hotel">Hotel</string>
+    <string name="pizza">Pizza</string>
+    <string name="bar_or_pub">Bar or Pub</string>
 </resources>

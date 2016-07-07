@@ -9,7 +9,7 @@ import java.util.List;
 /**
  * Main entry point for accessing places data.
  * <p>
- * For simplicity, only getPlaces() and getPlace() have callbacks. Consider adding callbacks to other
+ * For simplicity, only getPlacesFromService() and getPlace() have callbacks. Consider adding callbacks to other
  * methods to inform the user of network/database errors or successful operations.
  * For example, when a new place is saved, it's synchronously stored in cache but usually every
  * operation on database or network should be executed in a different thread.
@@ -27,8 +27,9 @@ public interface PlacesServiceApi {
   }
 
 
-  void getPlaces(@NonNull GeocodeParameters parameters, @NonNull PlacesServiceCallback callback);
+  void getPlacesFromService(@NonNull GeocodeParameters parameters, @NonNull PlacesServiceCallback callback);
   Place getPlaceDetail(String placeName);
 
+  List<Place> getPlacesFromRepo();
 
 }

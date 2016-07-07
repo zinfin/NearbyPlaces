@@ -23,6 +23,7 @@ public class LocationService implements PlacesServiceApi {
   private static LocatorTask mLocatorTask;
   private static LocationService instance = null;
 
+
   protected LocationService(){}
 
   public static LocationService getInstance(){
@@ -45,7 +46,7 @@ public class LocationService implements PlacesServiceApi {
     }
   }
 
-  @Override public void getPlaces(@NonNull GeocodeParameters parameters,@NonNull final PlacesServiceCallback callback)  {
+  @Override public void getPlacesFromService(@NonNull GeocodeParameters parameters,@NonNull final PlacesServiceCallback callback)  {
     checkNotNull(parameters);
     checkNotNull(callback);
     String searchText = "";
@@ -68,10 +69,10 @@ public class LocationService implements PlacesServiceApi {
             String url = (String) attributes.get("URL");
             String type = (String) attributes.get("Type");
             Point point = r.getDisplayLocation();
-           /* Set<String> keys = attributes.keySet();
-            for (String k: keys){
-              Log.i("ATTR", k + " " + attributes.get(k).toString());
-            }*/
+//            Set<String> keys = attributes.keySet();
+//            for (String k: keys){
+//              Log.i("ATTR", k + " " + attributes.get(k).toString());
+//            }
 
             Place place = new Place(name, type, point, address, url,phone,null);
             Log.i("PLACE", place.toString());
@@ -97,6 +98,9 @@ public class LocationService implements PlacesServiceApi {
     return foundPlace;
   }
 
+  @Override public List<Place> getPlacesFromRepo() {
+    return new ArrayList<>(mappedPlaces.values());
+  }
 
   public LocatorInfo getLocatorInfo(){
     return mLocatorTask.getLocatorInfo();
@@ -108,6 +112,8 @@ public class LocationService implements PlacesServiceApi {
     categories.add("Bookstore");
     categories.add("Food");
     categories.add("Hotel");
+    categories.add("Pizza");
+    categories.add("Coffee Shop");
     categories.add("Bar or Pub");
 
     return parameters;

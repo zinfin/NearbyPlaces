@@ -27,7 +27,7 @@ public class InMemoryPlacesRepository implements PlacesRepository {
 
     checkNotNull(callback);
     if (mCachedPlaces == null){
-      mPlacesServiceApi.getPlaces( new GeocodeParameters(), new PlacesServiceApi.PlacesServiceCallback<List<Place>>() {
+      mPlacesServiceApi.getPlacesFromService( new GeocodeParameters(), new PlacesServiceApi.PlacesServiceCallback<List<Place>>() {
         @Override public void onLoaded(List<Place> places) {
           mCachedPlaces = ImmutableList.copyOf(places);
           callback.onPlacesLoaded(mCachedPlaces);

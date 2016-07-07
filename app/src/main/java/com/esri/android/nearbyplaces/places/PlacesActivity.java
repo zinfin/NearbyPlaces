@@ -1,16 +1,19 @@
 package com.esri.android.nearbyplaces.places;
 
 import android.Manifest;
+import android.app.Application;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import com.esri.android.nearbyplaces.NearbyPlaces;
 import com.esri.android.nearbyplaces.R;
 import com.esri.android.nearbyplaces.map.MapFragment;
 import com.esri.android.nearbyplaces.map.MapPresenter;
@@ -26,6 +29,8 @@ public class PlacesActivity extends AppCompatActivity implements ActivityCompat.
   private PageAdapter mPageAdapter;
   private PlacesPresenter mPlacePresenter;
   private MapPresenter mMapPresenter;
+
+  
 
   @Override
   public void onCreate(Bundle savedInstanceState) {

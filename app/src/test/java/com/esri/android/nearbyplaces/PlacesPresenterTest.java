@@ -72,7 +72,7 @@ public class PlacesPresenterTest {
     verify(mPlacesView).showProgressIndicator(true);
 
     // Callback is captured and invoked with stubbed places (PLACES)
-    verify(mPlacesDataSource).getPlaces( mPlacesServiceCallbackCaptor.capture());
+    verify(mPlacesDataSource).getPlacesFromService( mPlacesServiceCallbackCaptor.capture());
     mPlacesServiceCallbackCaptor.getValue().onPlacesLoaded(PLACES);
 
     // Then progress indicator is hidden and all places are shown in UI
