@@ -41,13 +41,10 @@ public class PlacesActivity extends AppCompatActivity implements ActivityCompat.
     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
     setSupportActionBar(toolbar);
 
-
-
     final ViewPager viewPager = (ViewPager) findViewById(R.id.pager) ;
     if (viewPager != null){
       setUpViewPager(viewPager);
     }
-
 
     // Set up tabs in the main page, one for the list
     // of place the second tab for the map view
