@@ -1,5 +1,6 @@
 package com.esri.android.nearbyplaces.places;
 
+import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
@@ -17,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.*;
+import com.esri.android.nearbyplaces.PlaceListener;
 import com.esri.android.nearbyplaces.R;
 import com.esri.android.nearbyplaces.data.CategoryHelper;
 import com.esri.android.nearbyplaces.data.Place;
@@ -38,6 +40,7 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
 
   private RecyclerView mPlacesView;
 
+  private PlaceListener mCallback;
   private static final String TAG = PlacesFragment.class.getSimpleName();
 
   public PlacesFragment(){
@@ -65,38 +68,20 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
 
     mPlacesView.setLayoutManager(new LinearLayoutManager(mPlacesView.getContext()));
     mPlacesView.setAdapter(mPlaceAdapter);
-    //View root = inflater.inflate(R.layout.places_fragment, container, false);
 
-    // Places list
-   // ListView placesList = (ListView) root.findViewById(R.id.places_list);
-    //placesList.setAdapter(mPlaceAdapter);
-
-   // mPlacesView = (LinearLayout) root.findViewById(R.id.placesLinearLayout);
-
-    // Set up progress indicator
-  /*  final ScrollChildSwipeRefreshLayout swipeRefreshLayout =
-        (ScrollChildSwipeRefreshLayout) root.findViewById(R.id.refresh_layout);
-    swipeRefreshLayout.setColorSchemeColors(
-        ContextCompat.getColor(getActivity(), R.color.colorPrimary),
-        ContextCompat.getColor(getActivity(), R.color.colorAccent),
-        ContextCompat.getColor(getActivity(), R.color.colorPrimaryDark)
-    );
-    // Set the scrolling view in the custom SwipeRefreshLayout.
-    //swipeRefreshLayout.setScrollUpChild(placesList);
-
-   /* swipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
-      @Override public void onRefresh() {
-        // Refresh the list by initiating a search for places.
-        Toast.makeText(getContext(),"Refreshing", Toast.LENGTH_SHORT);
-        Log.i(TAG,"Swiping to refreshing");
-      }
-    });
-
-*/
     return mPlacesView;
   }
-
-  private void setUpRecyclerView(){
+  @Override
+  public void onAttach(Context context) {
+    super.onAttach(context);
+    // This makes sure that the container activity has implemented
+    // the callback interface. If not, it throws an exception
+    try {
+      mCallback = (PlaceListener) context;
+    } catch (ClassCastException e) {
+      throw new ClassCastException(context.toString()
+          + " must implement PlacesListener");
+    }
 
   }
   @Override
@@ -116,6 +101,7 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
     mPlaceAdapter.setPlaces(places);
     mPlaceAdapter.notifyDataSetChanged();
     mPlacesView.setVisibility(View.VISIBLE);
+    mCallback.onPlacesFound(places);
   }
 
   @Override public void showProgressIndicator(final boolean active) {

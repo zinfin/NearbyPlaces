@@ -13,23 +13,29 @@ import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.View;
+import android.widget.ProgressBar;
 import com.esri.android.nearbyplaces.NearbyPlaces;
+import com.esri.android.nearbyplaces.PlaceListener;
 import com.esri.android.nearbyplaces.R;
+import com.esri.android.nearbyplaces.data.Place;
 import com.esri.android.nearbyplaces.map.MapFragment;
 import com.esri.android.nearbyplaces.map.MapPresenter;
 import com.esri.android.nearbyplaces.mapplace.MapPlaceMediator;
 
+import java.util.List;
+
 /**
  * Created by sand8529 on 6/16/16.
  */
-public class PlacesActivity extends AppCompatActivity implements ActivityCompat.OnRequestPermissionsResultCallback{
+public class PlacesActivity extends AppCompatActivity
+    implements ActivityCompat.OnRequestPermissionsResultCallback, PlaceListener{
 
   private static final int PERMISSION_REQUEST_LOCATION = 0;
   private View mLayout;
   private PageAdapter mPageAdapter;
   private PlacesPresenter mPlacePresenter;
   private MapPresenter mMapPresenter;
-
+  private ProgressBar mProgressBar;
   
 
   @Override
@@ -54,7 +60,8 @@ public class PlacesActivity extends AppCompatActivity implements ActivityCompat.
     // request location permission
     requestLocationPermission();
 
-
+    // Get the progress bar
+    mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
   }
   /**
    * Configure tab layout
@@ -148,5 +155,17 @@ public class PlacesActivity extends AppCompatActivity implements ActivityCompat.
       }
     }
   }
+  private void hideProgressBar(){
+    mProgressBar.setVisibility(View.INVISIBLE);
+  }
 
+  private void showProgressBar(){mProgressBar.setVisibility(View.VISIBLE);}
+
+  @Override public void onPlacesFound(List<Place> places) {
+    hideProgressBar();
+  }
+
+  @Override public void onPlaceSearch() {
+    showProgressBar();
+  }
 }

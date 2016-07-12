@@ -54,7 +54,6 @@ public class LocationService implements PlacesServiceApi {
     provisionCategories(parameters);
     final ListenableFuture<List<GeocodeResult>> results = mLocatorTask.geocodeAsync(searchText, parameters);
     Log.i(TAG,"Geocode search started...");
-   // final ListenableFuture<List<GeocodeResult>> results = mLocatorTask.geocodeAsync(searchText);
     results.addDoneListener(new Runnable() {
       @Override public void run() {
 
@@ -109,7 +108,6 @@ public class LocationService implements PlacesServiceApi {
   private GeocodeParameters provisionCategories(@NonNull  GeocodeParameters parameters){
     checkNotNull(parameters);
     List<String> categories = parameters.getCategories();
-    categories.add("Bookstore");
     categories.add("Food");
     categories.add("Hotel");
     categories.add("Pizza");

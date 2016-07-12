@@ -6,8 +6,7 @@ import com.esri.android.nearbyplaces.data.LocationService;
 import com.esri.android.nearbyplaces.data.Place;
 import com.esri.android.nearbyplaces.data.PlacesServiceApi;
 import com.esri.android.nearbyplaces.mapplace.MapPlaceContract;
-import com.esri.arcgisruntime.geometry.Point;
-import com.esri.arcgisruntime.geometry.Polygon;
+import com.esri.arcgisruntime.geometry.*;
 import com.esri.arcgisruntime.mapping.view.LocationDisplay;
 import com.esri.arcgisruntime.tasks.geocode.GeocodeParameters;
 
@@ -21,7 +20,6 @@ public class MapPresenter implements MapContract.Presenter {
 
   private final static String TAG = MapPresenter.class.getSimpleName();
   private Point mLocation;
-  private boolean initialPlacesFound = false;
 
   private final MapContract.View mMapView;
   private final MapPlaceContract mMapPlacePresenter;
@@ -37,13 +35,17 @@ public class MapPresenter implements MapContract.Presenter {
 
   /**
    * Use the location service to geocode places of interest
-   * using the device's current locaiton.
+   * based on the map's visible area extent.
    */
   @Override public void findPlacesNearby() {
-    if (mLocation !=null){
+    Geometry g = mMapView.getMapView().getVisibleArea().getExtent();
+    if ( g !=null ){
       GeocodeParameters parameters = new GeocodeParameters();
-      parameters.setMaxResults(30);
-      parameters.setPreferredSearchLocation(mLocation);
+      parameters.setMaxResults(10);
+      parameters.setOutputSpatialReference(SpatialReference.create(4326));
+      Geometry searchArea = GeometryEngine.project(g, SpatialReference.create(4326));
+      parameters.setSearchArea(searchArea);
+    //  parameters.setPreferredSearchLocation(mLocation);
       mLocationService.getPlacesFromService(parameters, new PlacesServiceApi.PlacesServiceCallback() {
         @Override public void onLoaded(Object places) {
           List<Place> data = (List) places;
@@ -59,7 +61,6 @@ public class MapPresenter implements MapContract.Presenter {
           mMapPlacePresenter.getPlacePresenter().setPlacesNearby(data);
           // Create graphics for displaying locations in map
           mMapView.showNearbyPlaces(data);
-          initialPlacesFound = true;
         }
       });
     }
@@ -70,40 +71,31 @@ public class MapPresenter implements MapContract.Presenter {
    * for it to be loaded before searching for
    * nearby locations of interest.
    */
-  private void loadGeocodingService(){
-    if (mLocationService == null){
-      mLocationService = LocationService.getInstance();
-      LocationService.configureService(GEOCODE_URL,
-          new Runnable() {
-            @Override public void run() {
-              findPlacesNearby();
-            }
-          });
-    }else{
-      findPlacesNearby();
-    }
-  }
+//  private void loadGeocodingService(){
+//    if (mLocationService == null){
+//      mLocationService = LocationService.getInstance();
+//      LocationService.configureService(GEOCODE_URL,
+//          new Runnable() {
+//            @Override public void run() {
+//              findPlacesNearby();
+//            }
+//          });
+//    }else{
+//      findPlacesNearby();
+//    }
+//  }
 
   /**
    * The entry point for this class starts
-   * by obtaining the device's current location
-   * and then loading the gecoding service.
+   * by loading the gecoding service.
    */
   @Override public void start() {
-    LocationDisplay locationDisplay = mMapView.getLocationDisplay();
-    locationDisplay.addLocationChangedListener(new LocationDisplay.LocationChangedListener() {
-      @Override public void onLocationChanged(LocationDisplay.LocationChangedEvent locationChangedEvent) {
-        if (locationChangedEvent.getLocation()!=null){
-          mLocation = locationChangedEvent.getLocation().getPosition();
-          Log.i(TAG,"Location changed to " + mLocation.getX() + ", " + mLocation.getY());
-          if (!initialPlacesFound){
-            // Initialize the geocoding service
-            // after the current device location
-            // has been set.
-            loadGeocodingService();
+    mLocationService = LocationService.getInstance();
+    LocationService.configureService(GEOCODE_URL,
+        new Runnable() {
+          @Override public void run() {
+            findPlacesNearby();
           }
-        }
-      }
-    });
+        });
   }
 }

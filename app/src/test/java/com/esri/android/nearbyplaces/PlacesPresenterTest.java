@@ -31,8 +31,6 @@ public class PlacesPresenterTest {
   private static List<Place> PLACES;
 
   @Mock
-  private PlacesRepository mPlacesDataSource;
-  @Mock
   private PlacesContract.View mPlacesView;
 
   @Mock
@@ -66,13 +64,13 @@ public class PlacesPresenterTest {
   public void loadPlacesIntoView(){
 
     // When view is first shown, load list of places
-   /* mPlacesPresenter.loadPlaces(true);
+    mPlacesPresenter.setPlacesNearby(PLACES);
 
     // While loading places, a progress indicator is shown
-    verify(mPlacesView).showProgressIndicator(true);
+    verify(mPlacesView).showNearbyPlaces(PLACES);
 
     // Callback is captured and invoked with stubbed places (PLACES)
-    verify(mPlacesDataSource).getPlacesFromService( mPlacesServiceCallbackCaptor.capture());
+    /*verify(mPlacesDataSource).getPlacesFromService( mPlacesServiceCallbackCaptor.capture());
     mPlacesServiceCallbackCaptor.getValue().onPlacesLoaded(PLACES);
 
     // Then progress indicator is hidden and all places are shown in UI

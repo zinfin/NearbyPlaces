@@ -15,4 +15,7 @@
     <string name="hotel">Hotel</string>
     <string name="pizza">Pizza</string>
     <string name="bar_or_pub">Bar or Pub</string>
+
+    <!-- Toast and dialog message -->
+    <string name="no_places_found">No places found</string>
 </resources>

@@ -1,5 +1,6 @@
 package com.esri.android.nearbyplaces.map;
 
+import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
@@ -9,21 +10,18 @@ import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.FrameLayout;
+import android.widget.Toast;
 import com.esri.android.nearbyplaces.NearbyPlaces;
+import com.esri.android.nearbyplaces.PlaceListener;
 import com.esri.android.nearbyplaces.R;
 import com.esri.android.nearbyplaces.data.CategoryHelper;
 import com.esri.android.nearbyplaces.data.Place;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.Basemap;
-import com.esri.arcgisruntime.mapping.view.Graphic;
-import com.esri.arcgisruntime.mapping.view.GraphicsOverlay;
-import com.esri.arcgisruntime.mapping.view.LocationDisplay;
-import com.esri.arcgisruntime.mapping.view.MapView;
+import com.esri.arcgisruntime.mapping.view.*;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 
 import java.util.List;
@@ -43,11 +41,13 @@ public class MapFragment extends Fragment implements  MapContract.View {
 
   private GraphicsOverlay mGraphicOverlay;
 
+  private PlaceListener mCallback;
+
+  private boolean initialLocationLoaded =false;
+
   private final static String TAG = MapFragment.class.getSimpleName();
 
-  public MapFragment(){
-
-  }
+  public MapFragment(){}
 
   public static MapFragment newInstance(){
     return new MapFragment();
@@ -89,16 +89,43 @@ public class MapFragment extends Fragment implements  MapContract.View {
     mGraphicOverlay  = new GraphicsOverlay();
     mMapView.getGraphicsOverlays().add(mGraphicOverlay);
 
+
   }
 
+  @Override
+  public void onAttach(Context context) {
+    super.onAttach(context);
+    // This makes sure that the container activity has implemented
+    // the callback interface. If not, it throws an exception
+    try {
+      mCallback = (PlaceListener) context;
+    } catch (ClassCastException e) {
+      throw new ClassCastException(context.toString()
+          + " must implement PlacesListener");
+    }
+
+  }
+  /**
+   * Attach the viewpoint change listener
+   * so that POIs get updated as map's
+   * visible area is changed.
+   */
+  private void setNavigationCompletedListener(){
+    mMapView.addNavigationCompletedListener(new NavigationCompletedListener() {
+      @Override public void navigationCompleted(NavigationCompletedEvent navigationCompletedEvent) {
+        mCallback.onPlaceSearch();
+        mPresenter.findPlacesNearby();
+      }
+    });
+  }
 
   @Override
   public void onResume(){
     super.onResume();
     mMapView.resume();
-   /* if (!mLocationDisplay.isStarted()){
+   if (!mLocationDisplay.isStarted()){
       mLocationDisplay.startAsync();
-    }*/
+    }
     Log.i(TAG, "Map fragment onResume " + "and location display is " + mLocationDisplay.isStarted());
     mPresenter.start();
   }
@@ -107,23 +134,31 @@ public class MapFragment extends Fragment implements  MapContract.View {
   public void onPause(){
     super.onPause();
     mMapView.pause();
-   /* if (mLocationDisplay.isStarted()){
+   if (mLocationDisplay.isStarted()){
       mLocationDisplay.stop();
-    }*/
+    }
     Log.i(TAG, "Map fragment onPause " + "and location display is " + mLocationDisplay.isStarted());
   }
 
   /**
-   * Add places to the map as graphics.
+   * If any places are found,
+   * add them to the map as graphics.
    * @param places List of Place items
    */
   @Override public void showNearbyPlaces(List<Place> places) {
+    if (!initialLocationLoaded){
+      setNavigationCompletedListener();
+    }
+    initialLocationLoaded = true;
+    if (places.isEmpty()){
+      Toast.makeText(getContext(),getString(R.string.no_places_found),Toast.LENGTH_SHORT).show();
+      return;
+    }
     // Clear out any existing graphics
     mGraphicOverlay.getGraphics().clear();
 
     // Create a graphic for every place
     for (Place place : places){
-     // SimpleMarkerSymbol symbol = new SimpleMarkerSymbol(SimpleMarkerSymbol.Style.CIRCLE, Color.RED, 12);
       BitmapDrawable pin = (BitmapDrawable) ContextCompat.getDrawable(this.getActivity(),getDrawableForPlace(place)) ;
       final PictureMarkerSymbol pinSymbol = new PictureMarkerSymbol(pin);
       Point graphicPoint = place.getLocation();
@@ -132,6 +167,12 @@ public class MapFragment extends Fragment implements  MapContract.View {
     }
   }
 
+
+  /**
+   * Assign appropriate drawable given place type
+   * @param p - Place
+   * @return - Drawable
+   */
   private int getDrawableForPlace(Place p){
     String category = CategoryHelper.getCategoryForFoodType(p.getType());
 
@@ -153,7 +194,7 @@ public class MapFragment extends Fragment implements  MapContract.View {
         d =  R.drawable.empty_pin;
         break;
       case "Coffee Shop":
-        d = R.drawable.empty_pin;
+        d = R.drawable.cafe_pin;
         break;
       default:
         d = R.drawable.empty_pin;
@@ -172,5 +213,6 @@ public class MapFragment extends Fragment implements  MapContract.View {
   @Override public void setPresenter(MapContract.Presenter presenter) {
     mPresenter = presenter;
   }
+
 
 }
