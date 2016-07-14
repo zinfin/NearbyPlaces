@@ -41,7 +41,7 @@ public class MapPresenter implements MapContract.Presenter {
     Geometry g = mMapView.getMapView().getVisibleArea().getExtent();
     if ( g !=null ){
       GeocodeParameters parameters = new GeocodeParameters();
-      parameters.setMaxResults(20);
+      parameters.setMaxResults(10);
       parameters.setOutputSpatialReference(SpatialReference.create(4326));
       Geometry searchArea = GeometryEngine.project(g, SpatialReference.create(4326));
       parameters.setSearchArea(searchArea);

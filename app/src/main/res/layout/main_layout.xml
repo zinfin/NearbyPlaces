@@ -6,6 +6,7 @@
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        app:layout_behavior="android.support.design.widget.BottomSheetBehavior"
         tools:context="com.esri.android.nearbyplaces.places.PlacesActivity">
 
         <android.support.design.widget.AppBarLayout
@@ -34,6 +35,7 @@
                      android:fitsSystemWindows="true">
         </FrameLayout>
 
+        <include layout="@layout/place_card_view"/>
 
         <ProgressBar
                 android:layout_width="wrap_content"

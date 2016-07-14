@@ -6,16 +6,20 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.*;
+import android.widget.FrameLayout;
 import android.widget.ProgressBar;
+import android.widget.TextView;
 import com.esri.android.nearbyplaces.NearbyPlaces;
 import com.esri.android.nearbyplaces.PlaceListener;
 import com.esri.android.nearbyplaces.R;
@@ -26,6 +30,7 @@ import com.esri.android.nearbyplaces.mapplace.MapPlaceMediator;
 import com.esri.android.nearbyplaces.placeDetail.PlaceDetailActivity;
 import com.esri.android.nearbyplaces.util.ActivityUtils;
 import com.esri.arcgisruntime.mapping.view.MapView;
+import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -41,6 +46,8 @@ public class PlacesActivity extends AppCompatActivity
   private PlacesPresenter mPlacePresenter;
   private MapPresenter mMapPresenter;
   private ProgressBar mProgressBar;
+  private BottomSheetBehavior bottomSheetBehavior;
+  private FrameLayout mBottomSheet;
   
 
   @Override
@@ -58,6 +65,11 @@ public class PlacesActivity extends AppCompatActivity
 
     // Get the progress bar
     mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
+
+    //Set up behavior for the bottom sheet
+    bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottom_card_view));
+
+    mBottomSheet = (FrameLayout) findViewById(R.id.bottom_card_view);
   }
 
   @Override
@@ -78,34 +90,36 @@ public class PlacesActivity extends AppCompatActivity
        @Override public boolean onMenuItemClick(MenuItem item) {
          if (item.getTitle().toString().equalsIgnoreCase(getString(R.string.map_view))){
            // Hide the list, show the map
-           findViewById(R.id.recycleView).setVisibility(View.INVISIBLE);
-           findViewById(R.id.map).setVisibility(View.VISIBLE);
-           Log.i(TAG, "Show map");
-           // Change the menu
-           item.setIcon(getDrawable(R.drawable.ic_list_black_24dp));
-           item.setTitle(R.string.list_view);
+          showMap(item);
          }else if (item.getTitle().toString().equalsIgnoreCase(getString(R.string.list_view))){
            // Hide the map, show the list
-           findViewById(R.id.map).setVisibility(View.INVISIBLE);
-           findViewById(R.id.recycleView).setVisibility(View.VISIBLE);
-
-           item.setIcon(getDrawable(android.R.drawable.ic_menu_mapmode));
-           item.setTitle(R.string.map_view);
-           Log.i(TAG, "Show list");
+          showList(item);
          }
          return false;
        }
      });
    }
 
+  private void showMap(MenuItem item){
+    findViewById(R.id.recycleView).setVisibility(View.INVISIBLE);
+    findViewById(R.id.map).setVisibility(View.VISIBLE);
+    Log.i(TAG, "Show map");
+    // Change the menu
+    item.setIcon(getDrawable(R.drawable.ic_list_black_24dp));
+    item.setTitle(R.string.list_view);
+  }
+  private void showList(MenuItem item){
+    findViewById(R.id.map).setVisibility(View.INVISIBLE);
+    findViewById(R.id.recycleView).setVisibility(View.VISIBLE);
 
+    item.setIcon(getDrawable(android.R.drawable.ic_menu_mapmode));
+    item.setTitle(R.string.map_view);
+    Log.i(TAG, "Show list");
+  }
   /**
    * Set up fragments
    */
   private void setUpFragments(Bundle savedInstanceState){
-
-
-
 
     MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
 
@@ -205,13 +219,13 @@ public class PlacesActivity extends AppCompatActivity
   }
 
   /**
-   * Broadcast an intent to show the
-   * map/detail view
    * @param place
    */
   @Override public void showDetail(Place place) {
-    Intent intent = new Intent(this, PlaceDetailActivity.class);
-    intent.putExtra("PLACE_NAME",place.getName());
-    startActivity(intent);
+    findViewById(R.id.recycleView).setVisibility(View.INVISIBLE);
+    findViewById(R.id.map).setVisibility(View.VISIBLE);
+    TextView txtAddress = (TextView) mBottomSheet.findViewById(R.id.placeNameAndAddress);
+    txtAddress.setText(place.getName() + " " + place.getAddress());
+    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
   }
 }
