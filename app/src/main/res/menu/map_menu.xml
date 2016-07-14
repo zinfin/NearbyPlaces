@@ -2,9 +2,9 @@
       xmlns:app="http://schemas.android.com/apk/res-auto"
       xmlns:tools="http://schemas.android.com/tools"
       tools:context="com.esri.android.nearbyplaces.MainActivity">
-    <item android:id="@+id/map_action"
-          android:title="@string/map_view"
-          android:icon="@android:drawable/ic_menu_mapmode"
+    <item android:id="@+id/list_action"
+          android:title="@string/list_view"
+          android:icon="@drawable/ic_list_black_24dp"
           android:orderInCategory="100"
           app:showAsAction="always"/>
 </menu>

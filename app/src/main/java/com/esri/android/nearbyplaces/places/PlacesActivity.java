@@ -2,6 +2,7 @@ package com.esri.android.nearbyplaces.places;
 
 import android.Manifest;
 import android.app.Application;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -12,7 +13,8 @@ import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.View;
+import android.util.Log;
+import android.view.*;
 import android.widget.ProgressBar;
 import com.esri.android.nearbyplaces.NearbyPlaces;
 import com.esri.android.nearbyplaces.PlaceListener;
@@ -21,6 +23,9 @@ import com.esri.android.nearbyplaces.data.Place;
 import com.esri.android.nearbyplaces.map.MapFragment;
 import com.esri.android.nearbyplaces.map.MapPresenter;
 import com.esri.android.nearbyplaces.mapplace.MapPlaceMediator;
+import com.esri.android.nearbyplaces.placeDetail.PlaceDetailActivity;
+import com.esri.android.nearbyplaces.util.ActivityUtils;
+import com.esri.arcgisruntime.mapping.view.MapView;
 
 import java.util.List;
 
@@ -30,9 +35,9 @@ import java.util.List;
 public class PlacesActivity extends AppCompatActivity
     implements ActivityCompat.OnRequestPermissionsResultCallback, PlaceListener{
 
+  private static final String TAG = PlacesActivity.class.getSimpleName();
   private static final int PERMISSION_REQUEST_LOCATION = 0;
   private View mLayout;
-  private PageAdapter mPageAdapter;
   private PlacesPresenter mPlacePresenter;
   private MapPresenter mMapPresenter;
   private ProgressBar mProgressBar;
@@ -44,18 +49,9 @@ public class PlacesActivity extends AppCompatActivity
     setContentView(R.layout.main_layout);
 
     // Set up the toolbar.
-    Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-    setSupportActionBar(toolbar);
+    setUpToolbar();
 
-    final ViewPager viewPager = (ViewPager) findViewById(R.id.pager) ;
-    if (viewPager != null){
-      setUpViewPager(viewPager);
-    }
-
-    // Set up tabs in the main page, one for the list
-    // of place the second tab for the map view
-    TabLayout tabLayout = (TabLayout) findViewById(R.id.tab_layout);
-    tabLayout.setupWithViewPager(viewPager);
+    setUpFragments(savedInstanceState);
 
     // request location permission
     requestLocationPermission();
@@ -63,31 +59,70 @@ public class PlacesActivity extends AppCompatActivity
     // Get the progress bar
     mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
   }
+
+  @Override
+  public boolean onCreateOptionsMenu(Menu menu) {
+    // Inflate the menu items for use in the action bar
+    MenuInflater inflater = getMenuInflater();
+    inflater.inflate(R.menu.menu_main, menu);
+    return super.onCreateOptionsMenu(menu);
+  }
+
   /**
-   * Configure tab layout
+   * Set up toolbar
    */
-  private void setUpViewPager(ViewPager viewPager){
-    mPageAdapter = new PageAdapter(getSupportFragmentManager());
-    PlacesFragment placesFragment = (PlacesFragment) getSupportFragmentManager().findFragmentById(R.id.placesContainer) ;
+   private void setUpToolbar(){
+     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+     setSupportActionBar(toolbar);
+     toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
+       @Override public boolean onMenuItemClick(MenuItem item) {
+         if (item.getTitle().toString().equalsIgnoreCase(getString(R.string.map_view))){
+           // Hide the list, show the map
+           findViewById(R.id.recycleView).setVisibility(View.INVISIBLE);
+           findViewById(R.id.map).setVisibility(View.VISIBLE);
+           Log.i(TAG, "Show map");
+           // Change the menu
+           item.setIcon(getDrawable(R.drawable.ic_list_black_24dp));
+           item.setTitle(R.string.list_view);
+         }else if (item.getTitle().toString().equalsIgnoreCase(getString(R.string.list_view))){
+           // Hide the map, show the list
+           findViewById(R.id.map).setVisibility(View.INVISIBLE);
+           findViewById(R.id.recycleView).setVisibility(View.VISIBLE);
+
+           item.setIcon(getDrawable(android.R.drawable.ic_menu_mapmode));
+           item.setTitle(R.string.map_view);
+           Log.i(TAG, "Show list");
+         }
+         return false;
+       }
+     });
+   }
+
+
+  /**
+   * Set up fragments
+   */
+  private void setUpFragments(Bundle savedInstanceState){
+
+
+
+
+    MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
+
+    if (mapFragment == null){
+      mapFragment = MapFragment.newInstance();
+      ActivityUtils.addFragmentToActivity(
+          getSupportFragmentManager(), mapFragment, R.id.fragment_container);
+    }
+
+    PlacesFragment placesFragment = (PlacesFragment) getSupportFragmentManager().findFragmentById(R.id.recycleView) ;
 
     if (placesFragment == null){
       // Create the fragment
       placesFragment = PlacesFragment.newInstance();
-     /* ActivityUtils.addFragmentToActivity(
-          getSupportFragmentManager(), placesFragment, R.id.contentFrame);*/
+      ActivityUtils.addFragmentToActivity(
+          getSupportFragmentManager(), placesFragment, R.id.fragment_container);
     }
-    mPageAdapter.addFragment(placesFragment, "LIST");
-
-    MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map_container);
-
-    if (mapFragment == null){
-      mapFragment = MapFragment.newInstance();
-    }
-
-    mPageAdapter.addFragment(mapFragment,"MAP");
-
-    mPageAdapter.notifyDataSetChanged();
-    viewPager.setAdapter(mPageAdapter);
 
     MapPlaceMediator mapPlacePresenter = new MapPlaceMediator();
     mPlacePresenter = new PlacesPresenter( placesFragment, mapPlacePresenter);
@@ -167,5 +202,16 @@ public class PlacesActivity extends AppCompatActivity
 
   @Override public void onPlaceSearch() {
     showProgressBar();
+  }
+
+  /**
+   * Broadcast an intent to show the
+   * map/detail view
+   * @param place
+   */
+  @Override public void showDetail(Place place) {
+    Intent intent = new Intent(this, PlaceDetailActivity.class);
+    intent.putExtra("PLACE_NAME",place.getName());
+    startActivity(intent);
   }
 }

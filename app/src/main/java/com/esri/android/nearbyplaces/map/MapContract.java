@@ -30,7 +30,5 @@ public interface MapContract {
 
     void findPlacesNearby();
 
-
-
   }
 }

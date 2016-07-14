@@ -100,7 +100,7 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
   @Override public void showNearbyPlaces(List<Place> places) {
     mPlaceAdapter.setPlaces(places);
     mPlaceAdapter.notifyDataSetChanged();
-    mPlacesView.setVisibility(View.VISIBLE);
+   // mPlacesView.setVisibility(View.VISIBLE);
     mCallback.onPlacesFound(places);
   }
 
@@ -134,7 +134,6 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
     private PlaceItemListener mPlaceItemListener;
     public PlacesAdapter(Context context, int resource, List<Place> places){
       mPlaces = places;
-
     }
 
     public void setPlaces(List<Place> places){
@@ -145,9 +144,10 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
 
     @Override public RecyclerViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
       LayoutInflater inflater = LayoutInflater.from(parent.getContext());
-      View itemView = inflater.inflate(R.layout.place, parent, false);
+      final View itemView = inflater.inflate(R.layout.place, parent, false);
       return new RecyclerViewHolder(itemView);
     }
+
 
     @Override public void onBindViewHolder(RecyclerViewHolder holder, int position) {
       Place place = mPlaces.get(position);
