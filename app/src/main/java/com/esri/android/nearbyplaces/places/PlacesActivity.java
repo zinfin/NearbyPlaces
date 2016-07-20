@@ -7,6 +7,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomSheetBehavior;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
@@ -37,7 +38,7 @@ public class PlacesActivity extends AppCompatActivity
 
   private static final String TAG = PlacesActivity.class.getSimpleName();
   private static final int PERMISSION_REQUEST_LOCATION = 0;
-  private View mLayout;
+  private CoordinatorLayout mLayout;
   private PlacesPresenter mPlacePresenter;
   private MapPresenter mMapPresenter;
   private ProgressBar mProgressBar;
@@ -49,6 +50,8 @@ public class PlacesActivity extends AppCompatActivity
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main_layout);
+
+    mLayout = (CoordinatorLayout) findViewById(R.id.main_layout);
 
     // Set up the toolbar.
     setUpToolbar();
@@ -250,6 +253,24 @@ public class PlacesActivity extends AppCompatActivity
     // Center map on selected place
     mMapPresenter.centerOnPlace(place);
   }
+
+  @Override public void onMapScroll() {
+    //Dismiss bottom sheet
+    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+    // Show snackbar prompting user about
+    // scanning for new locations
+    Snackbar snackbar = Snackbar
+        .make(mLayout, "Search for places?", Snackbar.LENGTH_LONG)
+        .setAction("SEARCH", new View.OnClickListener() {
+          @Override
+          public void onClick(View view) {
+            mMapPresenter.findPlacesNearby();
+          }
+        });
+
+    snackbar.show();
+  }
+
   @Override
   public boolean onPrepareOptionsMenu(Menu menu){
     showMap(menu.findItem(R.id.map_action));

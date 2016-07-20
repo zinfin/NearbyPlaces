@@ -52,6 +52,8 @@ public class MapFragment extends Fragment implements  MapContract.View {
 
   private PlaceListener mCallback;
 
+  private NavigationCompletedListener mNavigationCompletedListener;
+
   private final static String TAG = MapFragment.class.getSimpleName();
 
   public MapFragment(){}
@@ -92,7 +94,7 @@ public class MapFragment extends Fragment implements  MapContract.View {
 
     Basemap basemap = new Basemap(new ArcGISVectorTiledLayer(
         getResources().getString(R.string.navigation_url)));
-    
+
     ArcGISMap map = new ArcGISMap(basemap);
     mMapView.setMap(map);
 
@@ -132,14 +134,21 @@ public class MapFragment extends Fragment implements  MapContract.View {
    * visible area is changed.
    */
   private void setNavigationCompletedListener(){
-    mMapView.addNavigationCompletedListener(new NavigationCompletedListener() {
+    mNavigationCompletedListener = new NavigationCompletedListener() {
       @Override public void navigationCompleted(NavigationCompletedEvent navigationCompletedEvent) {
-        if (!mCenteringOnPlace){
-          mCallback.onPlaceSearch();
-          mPresenter.findPlacesNearby();
-        }
+          mCallback.onMapScroll();
       }
-    });
+    };
+    mMapView.addNavigationCompletedListener(mNavigationCompletedListener);
+    Log.i(TAG, "Navigation complete handler ON");
+  }
+
+  private void removeNavigationCompletedListener(){
+    if (mNavigationCompletedListener != null){
+      mMapView.removeNavigationCompletedListener(mNavigationCompletedListener);
+      mNavigationCompletedListener = null;
+    }
+    Log.i(TAG, "Navigation complete handler OFF");
   }
 
   @Override
@@ -188,6 +197,7 @@ public class MapFragment extends Fragment implements  MapContract.View {
       Graphic graphic = new Graphic(graphicPoint, pinSymbol);
       mGraphicOverlay.getGraphics().add(graphic);
     }
+
   }
 
 
@@ -218,9 +228,22 @@ public class MapFragment extends Fragment implements  MapContract.View {
    * @param p
    */
   @Override public void centerOnPlace(Place p) {
+    // Stop listening to navigation changes
+    // while place is centered in map.
 
+    
+    removeNavigationCompletedListener();
     mCenteringOnPlace = true;
-    mMapView.setViewpointCenterAsync(p.getLocation());
+    ListenableFuture<Boolean>  viewCentered = mMapView.setViewpointCenterAsync(p.getLocation());
+    viewCentered.addDoneListener(new Runnable() {
+      @Override public void run() {
+        // Once we've centered on a place, listen
+        // for changes in viewpoint.
+        if (mNavigationCompletedListener == null){
+          setNavigationCompletedListener();
+        }
+      }
+    });
     // Change the pin icon
     if (mCenteredGraphic != null){
       BitmapDrawable oldPin = (BitmapDrawable) ContextCompat.getDrawable(this.getActivity(),getDrawableForPlace(mCenteredPlace)) ;
@@ -272,7 +295,7 @@ public class MapFragment extends Fragment implements  MapContract.View {
     }
     @Override
     public boolean onSingleTapConfirmed(MotionEvent motionEvent) {
-      Log.i(TAG, "Single tap event");
+      removeNavigationCompletedListener();
       android.graphics.Point screenPoint = new android.graphics.Point(
           (int) motionEvent.getX(),
           (int) motionEvent.getY());

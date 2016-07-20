@@ -11,4 +11,5 @@ public interface PlaceListener {
   void onPlacesFound(List<Place> places);
   void onPlaceSearch();
   void showDetail(Place place);
+  void onMapScroll();
 }
