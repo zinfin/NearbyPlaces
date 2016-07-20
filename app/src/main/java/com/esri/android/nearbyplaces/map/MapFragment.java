@@ -17,6 +17,7 @@ import com.esri.android.nearbyplaces.data.CategoryHelper;
 import com.esri.android.nearbyplaces.data.Place;
 import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.geometry.Point;
+import com.esri.arcgisruntime.layers.ArcGISVectorTiledLayer;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.Basemap;
 import com.esri.arcgisruntime.mapping.view.*;
@@ -89,7 +90,9 @@ public class MapFragment extends Fragment implements  MapContract.View {
 
     mLocationDisplay.setAutoPanMode(LocationDisplay.AutoPanMode.RECENTER);
 
-    Basemap basemap = Basemap.createStreets();
+    Basemap basemap = new Basemap(new ArcGISVectorTiledLayer(
+        getResources().getString(R.string.navigation_url)));
+    
     ArcGISMap map = new ArcGISMap(basemap);
     mMapView.setMap(map);
 
@@ -238,7 +241,6 @@ public class MapFragment extends Fragment implements  MapContract.View {
     // the graphic if another place
     // is centered.
     mCenteredPlace = p;
-  //  mCenteringOnPlace = false;
   }
 
   /**

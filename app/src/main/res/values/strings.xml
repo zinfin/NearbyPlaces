@@ -9,6 +9,8 @@
 
     <!-- Service URLs -->
     <string name="geocode_service_url">http://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer</string>
+    <string name="navigation_url">http://www.arcgis.com/sharing/rest/content/items/00cd8e843bae49b3a040423e5d65416b/resources/styles/root.json</string>
+
 
     <!-- Search categories for geocoding -->
     <string name="bookstore">Bookstore</string>
