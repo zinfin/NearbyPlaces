@@ -230,8 +230,10 @@ public class PlacesActivity extends AppCompatActivity
     // Get the menu item and show the map
     invalidateOptionsMenu();
 
-    TextView txtAddress = (TextView) mBottomSheet.findViewById(R.id.placeNameAndAddress);
-    txtAddress.setText(place.getName() + " " + place.getAddress());
+    TextView txtName = (TextView) mBottomSheet.findViewById(R.id.placeName);
+    txtName.setText(place.getName());
+    TextView txtAddress = (TextView) mBottomSheet.findViewById(R.id.placeAddress) ;
+    txtAddress.setText(place.getAddress());
     TextView txtPhone  = (TextView) mBottomSheet.findViewById(R.id.placePhone) ;
     txtPhone.setText(place.getPhone());
     TextView txtUrl = (TextView) mBottomSheet.findViewById(R.id.placeUrl);

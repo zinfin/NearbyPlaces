@@ -17,7 +17,7 @@ public class PlaceDetailActivity extends AppCompatActivity {
     Bundle extras = getIntent().getExtras();
     String placeName = extras.getString("PLACE_NAME");
 
-    TextView txtName = (TextView) findViewById(R.id.placeNameAndAddress);
+    TextView txtName = (TextView) findViewById(R.id.placeAddress);
     txtName.setText(placeName);
 
 

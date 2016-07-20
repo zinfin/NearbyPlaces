@@ -287,7 +287,7 @@ public class MapFragment extends Fragment implements  MapContract.View {
 
             // get size of list in results
             int identifyResultSize = graphic.size();
-            if (identifyResultSize == 1){
+            if (identifyResultSize > 0){
               Graphic foundGraphic = graphic.get(0);
               Place foundPlace = findPlaceForPoint((Point)foundGraphic.getGeometry());
               if (foundPlace != null){
