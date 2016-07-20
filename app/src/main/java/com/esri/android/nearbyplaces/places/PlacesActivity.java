@@ -1,36 +1,31 @@
 package com.esri.android.nearbyplaces.places;
 
 import android.Manifest;
-import android.app.Application;
-import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.BottomSheetBehavior;
 import android.support.design.widget.Snackbar;
-import android.support.design.widget.TabLayout;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.*;
 import android.widget.FrameLayout;
+import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
-import com.esri.android.nearbyplaces.NearbyPlaces;
 import com.esri.android.nearbyplaces.PlaceListener;
 import com.esri.android.nearbyplaces.R;
+import com.esri.android.nearbyplaces.data.CategoryHelper;
 import com.esri.android.nearbyplaces.data.Place;
 import com.esri.android.nearbyplaces.map.MapFragment;
 import com.esri.android.nearbyplaces.map.MapPresenter;
 import com.esri.android.nearbyplaces.mapplace.MapPlaceMediator;
-import com.esri.android.nearbyplaces.placeDetail.PlaceDetailActivity;
 import com.esri.android.nearbyplaces.util.ActivityUtils;
-import com.esri.arcgisruntime.mapping.view.MapView;
-import org.w3c.dom.Text;
 
 import java.util.List;
 
@@ -103,12 +98,20 @@ public class PlacesActivity extends AppCompatActivity
   private void showMap(MenuItem item){
     findViewById(R.id.recycleView).setVisibility(View.INVISIBLE);
     findViewById(R.id.map).setVisibility(View.VISIBLE);
+
     Log.i(TAG, "Show map");
     // Change the menu
-    item.setIcon(getDrawable(R.drawable.ic_list_black_24dp));
+    item.setIcon(getDrawable(R.drawable.ic_list_white_24px));
     item.setTitle(R.string.list_view);
+
+    // Lock the toolbar
+    AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
+    appBarLayout.setExpanded(true,true);
+
   }
   private void showList(MenuItem item){
+    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+
     findViewById(R.id.map).setVisibility(View.INVISIBLE);
     findViewById(R.id.recycleView).setVisibility(View.VISIBLE);
 
@@ -210,11 +213,13 @@ public class PlacesActivity extends AppCompatActivity
 
   private void showProgressBar(){mProgressBar.setVisibility(View.VISIBLE);}
 
+
   @Override public void onPlacesFound(List<Place> places) {
     hideProgressBar();
   }
 
   @Override public void onPlaceSearch() {
+  //  bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     showProgressBar();
   }
 
@@ -222,10 +227,30 @@ public class PlacesActivity extends AppCompatActivity
    * @param place
    */
   @Override public void showDetail(Place place) {
-    findViewById(R.id.recycleView).setVisibility(View.INVISIBLE);
-    findViewById(R.id.map).setVisibility(View.VISIBLE);
+    // Get the menu item and show the map
+    invalidateOptionsMenu();
+
     TextView txtAddress = (TextView) mBottomSheet.findViewById(R.id.placeNameAndAddress);
     txtAddress.setText(place.getName() + " " + place.getAddress());
+    TextView txtPhone  = (TextView) mBottomSheet.findViewById(R.id.placePhone) ;
+    txtPhone.setText(place.getPhone());
+    TextView txtUrl = (TextView) mBottomSheet.findViewById(R.id.placeUrl);
+    txtUrl.setText(place.getURL());
+    TextView txtType = (TextView) mBottomSheet.findViewById(R.id.placeType) ;
+    txtType.setText(place.getType());
+
+    // Assign the appropriate icon
+    Drawable d =   CategoryHelper.getDrawableForPlace(place, this) ;
+    ImageView icon = (ImageView) findViewById(R.id.TypeIcon);
+    icon.setImageDrawable(d);
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
+
+    // Center map on selected place
+    mMapPresenter.centerOnPlace(place);
+  }
+  @Override
+  public boolean onPrepareOptionsMenu(Menu menu){
+    showMap(menu.findItem(R.id.map_action));
+    return true;
   }
 }

@@ -11,11 +11,15 @@ public interface PlaceDetailContract {
 
   interface View extends BaseView<Presenter> {
     void showPlaceDetail(Place place);
+
+    void dismissPlaceDetail();
   }
 
   interface Presenter extends BasePresenter {
 
-    void getPlaceDetail(String placeName);
+    void setPlaceDetail(Place place);
+
+    void dismissPlaceDetail();
 
   }
 }

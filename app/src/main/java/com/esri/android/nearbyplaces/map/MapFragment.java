@@ -2,18 +2,15 @@ package com.esri.android.nearbyplaces.map;
 
 import android.content.Context;
 import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
 import android.util.Log;
 import android.view.*;
 import android.widget.FrameLayout;
 import android.widget.Toast;
-import com.esri.android.nearbyplaces.NearbyPlaces;
 import com.esri.android.nearbyplaces.PlaceListener;
 import com.esri.android.nearbyplaces.R;
 import com.esri.android.nearbyplaces.data.CategoryHelper;
@@ -45,6 +42,12 @@ public class MapFragment extends Fragment implements  MapContract.View {
 
   private boolean initialLocationLoaded =false;
 
+  private boolean mCenteringOnPlace = false;
+
+  private Graphic mCenteredGraphic = null;
+
+  private Place mCenteredPlace = null;
+
   private final static String TAG = MapFragment.class.getSimpleName();
 
   public MapFragment(){}
@@ -55,7 +58,9 @@ public class MapFragment extends Fragment implements  MapContract.View {
 
   @Override
   public void onCreate(@NonNull Bundle savedInstance){
+
     super.onCreate(savedInstance);
+
   }
 
   @Override
@@ -89,7 +94,17 @@ public class MapFragment extends Fragment implements  MapContract.View {
     mGraphicOverlay  = new GraphicsOverlay();
     mMapView.getGraphicsOverlays().add(mGraphicOverlay);
 
+    mMapView.addDrawStatusChangedListener(new DrawStatusChangedListener() {
+      @Override public void drawStatusChanged(DrawStatusChangedEvent drawStatusChangedEvent) {
+        if (drawStatusChangedEvent.getDrawStatus() == DrawStatus.COMPLETED){
+          mPresenter.start();
+          mMapView.removeDrawStatusChangedListener(this);
+        }
+      }
+    });
 
+    // Setup OnTouchListener to detect and act on long-press
+    mMapView.setOnTouchListener(new MapTouchListener(getActivity().getApplicationContext(), mMapView));
   }
 
   @Override
@@ -113,8 +128,10 @@ public class MapFragment extends Fragment implements  MapContract.View {
   private void setNavigationCompletedListener(){
     mMapView.addNavigationCompletedListener(new NavigationCompletedListener() {
       @Override public void navigationCompleted(NavigationCompletedEvent navigationCompletedEvent) {
-        mCallback.onPlaceSearch();
-        mPresenter.findPlacesNearby();
+        if (!mCenteringOnPlace){
+          mCallback.onPlaceSearch();
+          mPresenter.findPlacesNearby();
+        }
       }
     });
   }
@@ -127,7 +144,7 @@ public class MapFragment extends Fragment implements  MapContract.View {
       mLocationDisplay.startAsync();
     }
     Log.i(TAG, "Map fragment onResume " + "and location display is " + mLocationDisplay.isStarted());
-    mPresenter.start();
+  //  mPresenter.start();
   }
 
   @Override
@@ -174,32 +191,11 @@ public class MapFragment extends Fragment implements  MapContract.View {
    * @return - Drawable
    */
   private int getDrawableForPlace(Place p){
-    String category = CategoryHelper.getCategoryForFoodType(p.getType());
-
-    Integer d = null;
-    switch (category){
-      case "Pizza":
-        d =  R.drawable.pizza_pin;
-        break;
-      case "Hotel":
-        d =  R.drawable.hotel_pin;
-        break;
-      case "Food":
-        d = R.drawable.restaurant_pin;
-        break;
-      case "Bar or Pub":
-        d =  R.drawable.bar_pin;
-        break;
-      case "Bookstore":
-        d =  R.drawable.empty_pin;
-        break;
-      case "Coffee Shop":
-        d = R.drawable.cafe_pin;
-        break;
-      default:
-        d = R.drawable.empty_pin;
-    }
+    int d = CategoryHelper.getPinForPlace(p);
     return d;
+  }
+  private int getPinForCenterPlace(Place p){
+    return CategoryHelper.getPinForCenterPlace(p);
   }
 
   @Override public MapView getMapView() {
@@ -210,9 +206,80 @@ public class MapFragment extends Fragment implements  MapContract.View {
     return mLocationDisplay;
   }
 
+  /**
+   * Center the selected place and change the pin
+   * color to blue.
+   * @param p
+   */
+  @Override public void centerOnPlace(Place p) {
+
+    mCenteringOnPlace = true;
+    mMapView.setViewpointCenterAsync(p.getLocation());
+    // Change the pin icon
+    if (mCenteredGraphic != null){
+      BitmapDrawable oldPin = (BitmapDrawable) ContextCompat.getDrawable(this.getActivity(),getDrawableForPlace(mCenteredPlace)) ;
+      mCenteredGraphic.setSymbol(new PictureMarkerSymbol(oldPin));
+    }
+    List<Graphic> graphics = mGraphicOverlay.getGraphics();
+    for (Graphic g : graphics){
+      if (g.getGeometry().equals(p.getLocation())){
+        mCenteredGraphic = g;
+        BitmapDrawable pin = (BitmapDrawable) ContextCompat.getDrawable(this.getActivity(),getPinForCenterPlace(p)) ;
+        final PictureMarkerSymbol pinSymbol = new PictureMarkerSymbol(pin);
+        g.setSymbol(pinSymbol);
+        break;
+      }
+    }
+    // Keep track of centered place since
+    // it will be needed to reset
+    // the graphic if another place
+    // is centered.
+    mCenteredPlace = p;
+  //  mCenteringOnPlace = false;
+  }
+
+  /**
+   *
+   * @param presenter
+   */
   @Override public void setPresenter(MapContract.Presenter presenter) {
     mPresenter = presenter;
   }
 
+  /**
+   * Given a map point, find the associated Place
+   */
+  private Place findPlaceForPoint(Point p){
+    Place foundPlace = mPresenter.findPlaceForPoint(p);
+    return foundPlace;
+  }
+  private class MapTouchListener extends DefaultMapViewOnTouchListener {
+    /**
+     * Instantiates a new DrawingMapViewOnTouchListener with the specified
+     * context and MapView.
+     *
+     * @param context the application context from which to get the display
+     *                metrics
+     * @param mapView the MapView on which to control touch events
+     */
+    public MapTouchListener(Context context, MapView mapView) {
+      super(context, mapView);
+    }
+    @Override
+    public boolean onUp(MotionEvent motionEvent) {
+      Log.i(TAG, "On Up event");
+      android.graphics.Point mapPoint = new android.graphics.Point(
+          (int) motionEvent.getX(),
+          (int) motionEvent.getY());
+      Point point = mMapView.screenToLocation(mapPoint);
+      Log.i(TAG, "Spatial reference = " + point.getSpatialReference().getWKText());
+      Place foundPlace = findPlaceForPoint(point);
+      if (foundPlace != null){
+        Log.i(TAG, "Found place = " + foundPlace.getName());
+        centerOnPlace(foundPlace);
+      }
+      return true;
+    }
+  }
 
 }

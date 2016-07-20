@@ -5,6 +5,7 @@ import com.esri.android.nearbyplaces.BaseView;
 import com.esri.android.nearbyplaces.data.Place;
 import com.esri.android.nearbyplaces.places.PlaceFilterType;
 import com.esri.android.nearbyplaces.places.PlacesContract;
+import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.mapping.view.Graphic;
 import com.esri.arcgisruntime.mapping.view.LocationDisplay;
 import com.esri.arcgisruntime.mapping.view.MapView;
@@ -24,11 +25,16 @@ public interface MapContract {
 
     LocationDisplay getLocationDisplay();
 
+    void centerOnPlace(Place p);
+
   }
 
   interface Presenter extends BasePresenter{
 
     void findPlacesNearby();
 
+    void centerOnPlace(Place p);
+
+    Place findPlaceForPoint(Point p);
   }
 }

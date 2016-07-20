@@ -14,14 +14,14 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
+import android.view.*;
 import android.widget.*;
 import com.esri.android.nearbyplaces.PlaceListener;
 import com.esri.android.nearbyplaces.R;
 import com.esri.android.nearbyplaces.data.CategoryHelper;
 import com.esri.android.nearbyplaces.data.Place;
+import com.esri.arcgisruntime.mapping.view.DefaultMapViewOnTouchListener;
+import com.esri.arcgisruntime.mapping.view.MapView;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -92,12 +92,13 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
       throw new ClassCastException(context.toString()
           + " must implement PlacesListener");
     }
-
   }
+
   @Override
   public void onResume() {
     super.onResume();
     mPresenter.start();
+
   }
 
 
@@ -169,32 +170,7 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
 
     private Drawable assignIcon(int position){
       Place p = mPlaces.get(position);
-      String placeType = p.getType();
-      String category =  CategoryHelper.getCategoryForFoodType(placeType);
-      Drawable d = null;
-      switch (category){
-        case "Pizza":
-          d = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_local_pizza_black_24dp,null);
-          break;
-        case "Hotel":
-          d = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_hotel_black_24dp,null);
-          break;
-        case "Food":
-          d = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_local_dining_black_24dp,null);
-          break;
-        case "Bar or Pub":
-          d = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_local_bar_black_24dp,null);
-          break;
-        case "Bookstore":
-          d = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_place_black_24dp,null);
-          break;
-        case "Coffee Shop":
-          d = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_local_cafe_black_24dp,null);
-          break;
-        default:
-          d = ResourcesCompat.getDrawable(getResources(), R.drawable.ic_place_black_24dp,null);
-      }
-      return d;
+      return CategoryHelper.getDrawableForPlace(p, getActivity());
     }
   }
 
@@ -223,5 +199,4 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
   public interface OnItemClickListener {
     void onItemClick(Place place);
   }
-
 }

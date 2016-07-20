@@ -6,17 +6,17 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         android:id="@+id/bottom_card_view"
         android:layout_width="match_parent"
-        android:background="@color/colorAccent"
+        android:background="@color/background_floating_material_light"
         android:layout_height="200dp"
         card_view:cardCornerRadius="4dp"
         app:layout_behavior="@string/bottom_sheet_behavior">
 
     <android.support.v7.widget.LinearLayoutCompat
-            android:layout_width="wrap_content"
+            android:layout_width="fill_parent"
             android:layout_height="200dp"
             android:orientation="vertical">
 
-    <LinearLayout android:layout_width="wrap_content"
+    <LinearLayout android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
                   android:orientation="horizontal"
                   android:clickable="true" android:padding="10dp">
@@ -30,13 +30,13 @@
                 android:alpha=".20"/>
         <TextView
                 android:id="@+id/placeNameAndAddress"
-                android:layout_width="match_parent"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="Place name and address"
-                android:textSize="@dimen/abc_text_size_body_1_material" android:layout_gravity="center_vertical"/>
+                android:textSize="@dimen/abc_floating_window_z" android:layout_gravity="center_vertical"/>
     </LinearLayout>
 
-    <LinearLayout android:layout_width="wrap_content"
+    <LinearLayout android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
                   android:orientation="horizontal" android:padding="10dp">
         <ImageView
@@ -49,12 +49,12 @@
                 android:paddingRight="10dp"/>
         <TextView
                 android:id="@+id/placePhone"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="Phone"
-                android:textSize="@dimen/abc_text_size_body_1_material" android:layout_gravity="center_vertical"/>
+                android:textSize="@dimen/abc_floating_window_z" android:layout_gravity="center_vertical"/>
     </LinearLayout>
-    <LinearLayout android:layout_width="wrap_content"
+    <LinearLayout android:layout_width="fill_parent"
                   android:layout_height="wrap_content"
                   android:orientation="horizontal" android:padding="10dp">
         <ImageView
@@ -67,12 +67,12 @@
                 android:paddingRight="10dp"/>
         <TextView
                 android:id="@+id/placeUrl"
-                android:layout_width="wrap_content"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
                 android:text="URL"
-                android:textSize="@dimen/abc_text_size_body_1_material" android:layout_gravity="center_vertical"/>
+                android:textSize="@dimen/abc_floating_window_z" android:layout_gravity="center_vertical"/>
      </LinearLayout>
-        <LinearLayout android:layout_width="wrap_content"
+        <LinearLayout android:layout_width="fill_parent"
                       android:layout_height="wrap_content"
                       android:orientation="horizontal" android:padding="10dp">
             <ImageView
@@ -85,10 +85,10 @@
                     android:paddingRight="10dp"/>
             <TextView
                     android:id="@+id/placeType"
-                    android:layout_width="wrap_content"
+                    android:layout_width="fill_parent"
                     android:layout_height="wrap_content"
                     android:text="Restaurant"
-                    android:textSize="@dimen/abc_text_size_body_1_material" android:layout_gravity="center_vertical"/>
+                    android:textSize="@dimen/abc_floating_window_z" android:layout_gravity="center_vertical"/>
         </LinearLayout>
 
     </android.support.v7.widget.LinearLayoutCompat>

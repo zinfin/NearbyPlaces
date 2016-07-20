@@ -66,6 +66,25 @@ public class MapPresenter implements MapContract.Presenter {
     }
   }
 
+  @Override public void centerOnPlace(Place p) {
+    mMapView.centerOnPlace(p);
+  }
+
+  @Override public Place findPlaceForPoint(Point p) {
+
+    Place foundPlace = null;
+    List<Place> foundPlaces =mLocationService.getPlacesFromRepo();
+    for (Place place : foundPlaces){
+      Log.i(TAG, "Place location spatial reference = " + place.getLocation().getSpatialReference().getWKText());
+      Point newPoint = new Point(place.getLocation().getX(), place.getLocation().getY(), (SpatialReference.create(3857)));
+      if ((p).equals(newPoint)){
+        foundPlace = place;
+        break;
+      }
+    }
+    return foundPlace;
+  }
+
   /**
    * Provision the geocoding service and wait
    * for it to be loaded before searching for

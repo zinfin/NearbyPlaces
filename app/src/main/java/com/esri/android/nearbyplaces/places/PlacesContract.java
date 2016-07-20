@@ -31,5 +31,7 @@ public interface PlacesContract {
 
     void setPlacesNearby(List<Place> places);
 
+
+
   }
 }
