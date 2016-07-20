@@ -71,13 +71,12 @@ public class MapPresenter implements MapContract.Presenter {
   }
 
   @Override public Place findPlaceForPoint(Point p) {
-
+    Log.i(TAG, "Point X/Y " + p.getX() + " " + p.getY());
     Place foundPlace = null;
     List<Place> foundPlaces =mLocationService.getPlacesFromRepo();
     for (Place place : foundPlaces){
-      Log.i(TAG, "Place location spatial reference = " + place.getLocation().getSpatialReference().getWKText());
-      Point newPoint = new Point(place.getLocation().getX(), place.getLocation().getY(), (SpatialReference.create(3857)));
-      if ((p).equals(newPoint)){
+      Log.i(TAG, "Place location " + place.getLocation().getX() + " " + place.getLocation().getY());
+      if ((p).equals(place.getLocation())){
         foundPlace = place;
         break;
       }

@@ -15,6 +15,7 @@ import com.esri.android.nearbyplaces.PlaceListener;
 import com.esri.android.nearbyplaces.R;
 import com.esri.android.nearbyplaces.data.CategoryHelper;
 import com.esri.android.nearbyplaces.data.Place;
+import com.esri.arcgisruntime.concurrent.ListenableFuture;
 import com.esri.arcgisruntime.geometry.Point;
 import com.esri.arcgisruntime.mapping.ArcGISMap;
 import com.esri.arcgisruntime.mapping.Basemap;
@@ -22,6 +23,7 @@ import com.esri.arcgisruntime.mapping.view.*;
 import com.esri.arcgisruntime.symbology.PictureMarkerSymbol;
 
 import java.util.List;
+import java.util.concurrent.ExecutionException;
 
 /**
  * Created by sand8529 on 6/24/16.
@@ -38,7 +40,6 @@ public class MapFragment extends Fragment implements  MapContract.View {
 
   private GraphicsOverlay mGraphicOverlay;
 
-  private PlaceListener mCallback;
 
   private boolean initialLocationLoaded =false;
 
@@ -47,6 +48,8 @@ public class MapFragment extends Fragment implements  MapContract.View {
   private Graphic mCenteredGraphic = null;
 
   private Place mCenteredPlace = null;
+
+  private PlaceListener mCallback;
 
   private final static String TAG = MapFragment.class.getSimpleName();
 
@@ -266,18 +269,39 @@ public class MapFragment extends Fragment implements  MapContract.View {
       super(context, mapView);
     }
     @Override
-    public boolean onUp(MotionEvent motionEvent) {
-      Log.i(TAG, "On Up event");
-      android.graphics.Point mapPoint = new android.graphics.Point(
+    public boolean onSingleTapConfirmed(MotionEvent motionEvent) {
+      Log.i(TAG, "Single tap event");
+      android.graphics.Point screenPoint = new android.graphics.Point(
           (int) motionEvent.getX(),
           (int) motionEvent.getY());
-      Point point = mMapView.screenToLocation(mapPoint);
-      Log.i(TAG, "Spatial reference = " + point.getSpatialReference().getWKText());
-      Place foundPlace = findPlaceForPoint(point);
-      if (foundPlace != null){
-        Log.i(TAG, "Found place = " + foundPlace.getName());
-        centerOnPlace(foundPlace);
-      }
+      // identify graphics on the graphics overlay
+      final ListenableFuture<List<Graphic>> identifyGraphic = mMapView
+          .identifyGraphicsOverlayAsync(mGraphicOverlay, screenPoint, 10, 2);
+
+      identifyGraphic.addDoneListener(new Runnable() {
+        @Override
+        public void run() {
+          try {
+            // get the list of graphics returned by identify
+            List<Graphic> graphic = identifyGraphic.get();
+
+            // get size of list in results
+            int identifyResultSize = graphic.size();
+            if (identifyResultSize == 1){
+              Graphic foundGraphic = graphic.get(0);
+              Place foundPlace = findPlaceForPoint((Point)foundGraphic.getGeometry());
+              if (foundPlace != null){
+                mCallback.showDetail(foundPlace);
+              }
+            }
+          } catch (InterruptedException | ExecutionException ie) {
+            ie.printStackTrace();
+          }
+        }
+
+      });
+
+
       return true;
     }
   }
