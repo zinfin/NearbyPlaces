@@ -230,8 +230,6 @@ public class MapFragment extends Fragment implements  MapContract.View {
   @Override public void centerOnPlace(Place p) {
     // Stop listening to navigation changes
     // while place is centered in map.
-
-    
     removeNavigationCompletedListener();
     mCenteringOnPlace = true;
     ListenableFuture<Boolean>  viewCentered = mMapView.setViewpointCenterAsync(p.getLocation());
@@ -240,6 +238,7 @@ public class MapFragment extends Fragment implements  MapContract.View {
         // Once we've centered on a place, listen
         // for changes in viewpoint.
         if (mNavigationCompletedListener == null){
+          Log.i(TAG, "Done centering");
           setNavigationCompletedListener();
         }
       }

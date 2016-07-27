@@ -11,7 +11,10 @@
 
         <android.support.design.widget.AppBarLayout
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" android:id="@+id/app_bar">
+                android:layout_height="wrap_content"
+                android:id="@+id/app_bar"
+                android:theme="@style/MyAppBarTheme"
+                android:fitsSystemWindows="false">
 
                 <android.support.v7.widget.Toolbar
                         android:id="@+id/toolbar"
@@ -19,7 +22,6 @@
                         android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
                         android:background="?attr/colorPrimary"
-                        android:elevation="4dp"
                         app:layout_scrollFlags="scroll|enterAlways"
                         android:minHeight="?attr/actionBarSize"
                         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"

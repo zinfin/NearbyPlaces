@@ -17,11 +17,12 @@ public class ActivityUtils {
    *
    */
   public static void addFragmentToActivity (@NonNull FragmentManager fragmentManager,
-      @NonNull Fragment fragment, int frameId) {
+      @NonNull Fragment fragment, int frameId, @NonNull String fragmentName) {
     checkNotNull(fragmentManager);
     checkNotNull(fragment);
     FragmentTransaction transaction = fragmentManager.beginTransaction();
     transaction.add(frameId, fragment);
+    transaction.addToBackStack(fragmentName);
     transaction.commit();
   }
 }

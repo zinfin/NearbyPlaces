@@ -5,20 +5,15 @@ import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
-import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.BottomSheetBehavior;
-import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
+import android.support.design.widget.*;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
+import android.support.v4.content.res.ResourcesCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.*;
-import android.widget.FrameLayout;
-import android.widget.ImageView;
-import android.widget.ProgressBar;
-import android.widget.TextView;
+import android.widget.*;
 import com.esri.android.nearbyplaces.PlaceListener;
 import com.esri.android.nearbyplaces.R;
 import com.esri.android.nearbyplaces.data.CategoryHelper;
@@ -44,6 +39,7 @@ public class PlacesActivity extends AppCompatActivity
   private ProgressBar mProgressBar;
   private BottomSheetBehavior bottomSheetBehavior;
   private FrameLayout mBottomSheet;
+  private boolean mShowSnackbar = false;
   
 
   @Override
@@ -66,6 +62,20 @@ public class PlacesActivity extends AppCompatActivity
 
     //Set up behavior for the bottom sheet
     bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottom_card_view));
+
+    bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
+      @Override
+      public void onStateChanged(View bottomSheet, int newState) {
+        if (newState == BottomSheetBehavior.STATE_COLLAPSED && mShowSnackbar) {
+          showSearchSnackbar();
+          mShowSnackbar = false;
+        }
+      }
+
+      @Override
+      public void onSlide(View bottomSheet, float slideOffset) {
+      }
+    });
 
     mBottomSheet = (FrameLayout) findViewById(R.id.bottom_card_view);
   }
@@ -132,7 +142,7 @@ public class PlacesActivity extends AppCompatActivity
     if (mapFragment == null){
       mapFragment = MapFragment.newInstance();
       ActivityUtils.addFragmentToActivity(
-          getSupportFragmentManager(), mapFragment, R.id.fragment_container);
+          getSupportFragmentManager(), mapFragment, R.id.fragment_container, "map fragment");
     }
 
     PlacesFragment placesFragment = (PlacesFragment) getSupportFragmentManager().findFragmentById(R.id.recycleView) ;
@@ -141,7 +151,7 @@ public class PlacesActivity extends AppCompatActivity
       // Create the fragment
       placesFragment = PlacesFragment.newInstance();
       ActivityUtils.addFragmentToActivity(
-          getSupportFragmentManager(), placesFragment, R.id.fragment_container);
+          getSupportFragmentManager(), placesFragment, R.id.fragment_container, "list fragment");
     }
 
     MapPlaceMediator mapPlacePresenter = new MapPlaceMediator();
@@ -222,7 +232,6 @@ public class PlacesActivity extends AppCompatActivity
   }
 
   @Override public void onPlaceSearch() {
-  //  bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
     showProgressBar();
   }
 
@@ -231,7 +240,12 @@ public class PlacesActivity extends AppCompatActivity
    */
   @Override public void showDetail(Place place) {
     // Get the menu item and show the map
-    invalidateOptionsMenu();
+    //invalidateOptionsMenu();
+
+    // Change the background of the app bar layout
+    // and add icons for closing detail and
+    // requesting routing
+    toggleAppBarLayout(true);
 
     TextView txtName = (TextView) mBottomSheet.findViewById(R.id.placeName);
     txtName.setText(place.getName());
@@ -252,11 +266,27 @@ public class PlacesActivity extends AppCompatActivity
 
     // Center map on selected place
     mMapPresenter.centerOnPlace(place);
+    mShowSnackbar = false;
   }
 
+  private void toggleAppBarLayout(boolean show){
+    if (show){
+      AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
+      appBarLayout.setMinimumHeight(100);
+      appBarLayout.setBackground(ResourcesCompat.getDrawable(this.getResources(), R.drawable.gradient,null));
+      LinearLayout linearLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.app_bar_layout, null);
+      appBarLayout.addView(linearLayout);
+    }else{
+      mLayout.removeView(findViewById(R.id.appbar_linear_layout));
+    }
+  }
   @Override public void onMapScroll() {
     //Dismiss bottom sheet
+    mShowSnackbar = true;
     bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
+  }
+
+  private void showSearchSnackbar(){
     // Show snackbar prompting user about
     // scanning for new locations
     Snackbar snackbar = Snackbar
