@@ -105,7 +105,6 @@ public class PlacesFragment extends Fragment implements PlacesContract.View{
   @Override public void showNearbyPlaces(List<Place> places) {
     mPlaceAdapter.setPlaces(places);
     mPlaceAdapter.notifyDataSetChanged();
-   // mPlacesView.setVisibility(View.VISIBLE);
     mCallback.onPlacesFound(places);
   }
 

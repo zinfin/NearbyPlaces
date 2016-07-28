@@ -96,7 +96,7 @@
                     android:paddingRight="16dp"/>
             <TextView
                     android:id="@+id/placeType"
-                    android:layout_width="fill_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Restaurant"
                     android:textSize="@dimen/abc_floating_window_z" android:layout_gravity="center_vertical"

@@ -1,14 +1,13 @@
 package com.esri.android.nearbyplaces.places;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.*;
 import android.support.v4.app.ActivityCompat;
-import android.support.v4.content.ContextCompat;
-import android.support.v4.content.res.ResourcesCompat;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -16,11 +15,8 @@ import android.view.*;
 import android.widget.*;
 import com.esri.android.nearbyplaces.PlaceListener;
 import com.esri.android.nearbyplaces.R;
-import com.esri.android.nearbyplaces.data.CategoryHelper;
 import com.esri.android.nearbyplaces.data.Place;
-import com.esri.android.nearbyplaces.map.MapFragment;
-import com.esri.android.nearbyplaces.map.MapPresenter;
-import com.esri.android.nearbyplaces.mapplace.MapPlaceMediator;
+import com.esri.android.nearbyplaces.map.MapActivity;
 import com.esri.android.nearbyplaces.util.ActivityUtils;
 
 import java.util.List;
@@ -33,21 +29,16 @@ public class PlacesActivity extends AppCompatActivity
 
   private static final String TAG = PlacesActivity.class.getSimpleName();
   private static final int PERMISSION_REQUEST_LOCATION = 0;
-  private CoordinatorLayout mLayout;
+  private CoordinatorLayout mMainLayout;
   private PlacesPresenter mPlacePresenter;
-  private MapPresenter mMapPresenter;
-  private ProgressBar mProgressBar;
-  private BottomSheetBehavior bottomSheetBehavior;
-  private FrameLayout mBottomSheet;
-  private boolean mShowSnackbar = false;
-  
+
 
   @Override
   public void onCreate(Bundle savedInstanceState) {
     super.onCreate(savedInstanceState);
     setContentView(R.layout.main_layout);
 
-    mLayout = (CoordinatorLayout) findViewById(R.id.main_layout);
+    mMainLayout = (CoordinatorLayout) findViewById(R.id.list_coordinator_layout);
 
     // Set up the toolbar.
     setUpToolbar();
@@ -57,27 +48,6 @@ public class PlacesActivity extends AppCompatActivity
     // request location permission
     requestLocationPermission();
 
-    // Get the progress bar
-    mProgressBar = (ProgressBar) findViewById(R.id.progressBar);
-
-    //Set up behavior for the bottom sheet
-    bottomSheetBehavior = BottomSheetBehavior.from(findViewById(R.id.bottom_card_view));
-
-    bottomSheetBehavior.setBottomSheetCallback(new BottomSheetBehavior.BottomSheetCallback() {
-      @Override
-      public void onStateChanged(View bottomSheet, int newState) {
-        if (newState == BottomSheetBehavior.STATE_COLLAPSED && mShowSnackbar) {
-          showSearchSnackbar();
-          mShowSnackbar = false;
-        }
-      }
-
-      @Override
-      public void onSlide(View bottomSheet, float slideOffset) {
-      }
-    });
-
-    mBottomSheet = (FrameLayout) findViewById(R.id.bottom_card_view);
   }
 
   @Override
@@ -92,16 +62,17 @@ public class PlacesActivity extends AppCompatActivity
    * Set up toolbar
    */
    private void setUpToolbar(){
-     Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+     Toolbar toolbar = (Toolbar) findViewById(R.id.placeList_toolbar);
      setSupportActionBar(toolbar);
+     toolbar.setTitle("");
+     final ActionBar ab = getSupportActionBar();
+     ab.setDisplayHomeAsUpEnabled(true);
+
      toolbar.setOnMenuItemClickListener(new Toolbar.OnMenuItemClickListener() {
        @Override public boolean onMenuItemClick(MenuItem item) {
          if (item.getTitle().toString().equalsIgnoreCase(getString(R.string.map_view))){
            // Hide the list, show the map
           showMap(item);
-         }else if (item.getTitle().toString().equalsIgnoreCase(getString(R.string.list_view))){
-           // Hide the map, show the list
-          showList(item);
          }
          return false;
        }
@@ -109,41 +80,14 @@ public class PlacesActivity extends AppCompatActivity
    }
 
   private void showMap(MenuItem item){
-    findViewById(R.id.recycleView).setVisibility(View.INVISIBLE);
-    findViewById(R.id.map).setVisibility(View.VISIBLE);
-
-    Log.i(TAG, "Show map");
-    // Change the menu
-    item.setIcon(getDrawable(R.drawable.ic_list_white_24px));
-    item.setTitle(R.string.list_view);
-
-    // Lock the toolbar
-    AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
-    appBarLayout.setExpanded(true,true);
-
+    Intent intent = new Intent(PlacesActivity.this, MapActivity.class);
+    startActivity(intent);
   }
-  private void showList(MenuItem item){
-    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
 
-    findViewById(R.id.map).setVisibility(View.INVISIBLE);
-    findViewById(R.id.recycleView).setVisibility(View.VISIBLE);
-
-    item.setIcon(getDrawable(android.R.drawable.ic_menu_mapmode));
-    item.setTitle(R.string.map_view);
-    Log.i(TAG, "Show list");
-  }
   /**
    * Set up fragments
    */
   private void setUpFragments(Bundle savedInstanceState){
-
-    MapFragment mapFragment = (MapFragment) getSupportFragmentManager().findFragmentById(R.id.map);
-
-    if (mapFragment == null){
-      mapFragment = MapFragment.newInstance();
-      ActivityUtils.addFragmentToActivity(
-          getSupportFragmentManager(), mapFragment, R.id.fragment_container, "map fragment");
-    }
 
     PlacesFragment placesFragment = (PlacesFragment) getSupportFragmentManager().findFragmentById(R.id.recycleView) ;
 
@@ -151,12 +95,11 @@ public class PlacesActivity extends AppCompatActivity
       // Create the fragment
       placesFragment = PlacesFragment.newInstance();
       ActivityUtils.addFragmentToActivity(
-          getSupportFragmentManager(), placesFragment, R.id.fragment_container, "list fragment");
+          getSupportFragmentManager(), placesFragment, R.id.list_fragment_container, "list fragment");
     }
 
-    MapPlaceMediator mapPlacePresenter = new MapPlaceMediator();
-    mPlacePresenter = new PlacesPresenter( placesFragment, mapPlacePresenter);
-    mMapPresenter = new MapPresenter(mapFragment, mapPlacePresenter);
+    mPlacePresenter = new PlacesPresenter (placesFragment);
+
   }
 
   /**
@@ -176,7 +119,7 @@ public class PlacesActivity extends AppCompatActivity
       // the permission.
       // Display a SnackBar with a button to request the missing
       // permission.
-      Snackbar.make(mLayout, "Location access is required to search for places nearby.", Snackbar.LENGTH_INDEFINITE)
+      Snackbar.make(mMainLayout, "Location access is required to search for places nearby.", Snackbar.LENGTH_INDEFINITE)
           .setAction("OK", new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -216,94 +159,25 @@ public class PlacesActivity extends AppCompatActivity
 
       } else {
         // Permission request was denied.
-        Snackbar.make(mLayout, "Location permission request was denied.", Snackbar.LENGTH_SHORT).show();
+        Snackbar.make(mMainLayout, "Location permission request was denied.", Snackbar.LENGTH_SHORT).show();
       }
     }
   }
-  private void hideProgressBar(){
-    mProgressBar.setVisibility(View.INVISIBLE);
-  }
-
-  private void showProgressBar(){mProgressBar.setVisibility(View.VISIBLE);}
 
 
   @Override public void onPlacesFound(List<Place> places) {
-    hideProgressBar();
+
   }
 
   @Override public void onPlaceSearch() {
-    showProgressBar();
+
   }
 
-  /**
-   * @param place
-   */
   @Override public void showDetail(Place place) {
-    // Get the menu item and show the map
-    //invalidateOptionsMenu();
 
-    // Change the background of the app bar layout
-    // and add icons for closing detail and
-    // requesting routing
-    toggleAppBarLayout(true);
-
-    TextView txtName = (TextView) mBottomSheet.findViewById(R.id.placeName);
-    txtName.setText(place.getName());
-    TextView txtAddress = (TextView) mBottomSheet.findViewById(R.id.placeAddress) ;
-    txtAddress.setText(place.getAddress());
-    TextView txtPhone  = (TextView) mBottomSheet.findViewById(R.id.placePhone) ;
-    txtPhone.setText(place.getPhone());
-    TextView txtUrl = (TextView) mBottomSheet.findViewById(R.id.placeUrl);
-    txtUrl.setText(place.getURL());
-    TextView txtType = (TextView) mBottomSheet.findViewById(R.id.placeType) ;
-    txtType.setText(place.getType());
-
-    // Assign the appropriate icon
-    Drawable d =   CategoryHelper.getDrawableForPlace(place, this) ;
-    ImageView icon = (ImageView) findViewById(R.id.TypeIcon);
-    icon.setImageDrawable(d);
-    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_EXPANDED);
-
-    // Center map on selected place
-    mMapPresenter.centerOnPlace(place);
-    mShowSnackbar = false;
   }
 
-  private void toggleAppBarLayout(boolean show){
-    if (show){
-      AppBarLayout appBarLayout = (AppBarLayout) findViewById(R.id.app_bar);
-      appBarLayout.setMinimumHeight(100);
-      appBarLayout.setBackground(ResourcesCompat.getDrawable(this.getResources(), R.drawable.gradient,null));
-      LinearLayout linearLayout = (LinearLayout) getLayoutInflater().inflate(R.layout.app_bar_layout, null);
-      appBarLayout.addView(linearLayout);
-    }else{
-      mLayout.removeView(findViewById(R.id.appbar_linear_layout));
-    }
-  }
   @Override public void onMapScroll() {
-    //Dismiss bottom sheet
-    mShowSnackbar = true;
-    bottomSheetBehavior.setState(BottomSheetBehavior.STATE_COLLAPSED);
-  }
 
-  private void showSearchSnackbar(){
-    // Show snackbar prompting user about
-    // scanning for new locations
-    Snackbar snackbar = Snackbar
-        .make(mLayout, "Search for places?", Snackbar.LENGTH_LONG)
-        .setAction("SEARCH", new View.OnClickListener() {
-          @Override
-          public void onClick(View view) {
-            mMapPresenter.findPlacesNearby();
-          }
-        });
-
-    snackbar.show();
-  }
-
-  @Override
-  public boolean onPrepareOptionsMenu(Menu menu){
-    showMap(menu.findItem(R.id.map_action));
-    return true;
   }
 }

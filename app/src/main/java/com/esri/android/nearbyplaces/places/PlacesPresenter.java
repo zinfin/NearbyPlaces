@@ -1,6 +1,7 @@
 package com.esri.android.nearbyplaces.places;
 
 import android.support.annotation.NonNull;
+import com.esri.android.nearbyplaces.data.LocationService;
 import com.esri.android.nearbyplaces.data.Place;
 import com.esri.android.nearbyplaces.map.MapContract;
 import com.esri.android.nearbyplaces.mapplace.MapPlaceContract;
@@ -16,19 +17,17 @@ public class PlacesPresenter implements PlacesContract.Presenter {
 
 
   private final PlacesContract.View mPlacesView;
-  private final MapPlaceContract mMapPlacePresenter;
 
-  public PlacesPresenter( @NonNull PlacesContract.View listView,
-      @NonNull MapPlaceContract mapPlaceContract){
+  public PlacesPresenter( @NonNull PlacesContract.View listView){
     mPlacesView = checkNotNull(listView);
-    mMapPlacePresenter = checkNotNull(mapPlaceContract);
     mPlacesView.setPresenter(this);
-    mapPlaceContract.registerPlacePresenter(this);
   }
 
 
   @Override public void start() {
-    // not called.
+    LocationService locationService = LocationService.getInstance();
+    List<Place> places = locationService.getPlacesFromRepo();
+    setPlacesNearby(places);
   }
 
   /**

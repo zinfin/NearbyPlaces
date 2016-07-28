@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.design.widget.CoordinatorLayout
-        android:id="@+id/main_layout"
+        android:id="@+id/list_coordinator_layout"
         xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
@@ -12,12 +12,12 @@
         <android.support.design.widget.AppBarLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:id="@+id/app_bar"
+                android:id="@+id/placeList_app_bar"
                 android:theme="@style/MyAppBarTheme"
                 android:fitsSystemWindows="false">
 
                 <android.support.v7.widget.Toolbar
-                        android:id="@+id/toolbar"
+                        android:id="@+id/placeList_toolbar"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_alignParentTop="true"
@@ -30,23 +30,10 @@
 
         </android.support.design.widget.AppBarLayout>
 
-
-        <FrameLayout android:id="@+id/fragment_container"
+        <FrameLayout android:id="@+id/list_fragment_container"
                      android:layout_width="match_parent"
                      android:layout_height="match_parent"
                      android:fitsSystemWindows="true">
         </FrameLayout>
 
-        <include layout="@layout/place_card_view"/>
-
-
-        <ProgressBar
-                android:layout_width="wrap_content"
-                android:layout_gravity="center"
-                style="?android:attr/progressBarStyleLarge"
-                android:visibility="visible"
-                android:id="@+id/progressBar"
-                android:progressDrawable="@drawable/widget_progressbar"
-                android:indeterminateDrawable="@drawable/widget_progressbar"
-                android:layout_height="wrap_content"/>
 </android.support.design.widget.CoordinatorLayout>
