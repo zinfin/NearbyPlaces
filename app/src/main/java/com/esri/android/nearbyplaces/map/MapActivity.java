@@ -17,6 +17,7 @@ import com.esri.android.nearbyplaces.PlaceListener;
 import com.esri.android.nearbyplaces.R;
 import com.esri.android.nearbyplaces.data.CategoryHelper;
 import com.esri.android.nearbyplaces.data.Place;
+import com.esri.android.nearbyplaces.filter.FilterDialogFragment;
 import com.esri.android.nearbyplaces.places.PlacesActivity;
 import com.esri.android.nearbyplaces.util.ActivityUtils;
 
@@ -90,6 +91,11 @@ public class MapActivity extends AppCompatActivity implements PlaceListener {
              if (item.getTitle().toString().equalsIgnoreCase(getString(R.string.list_view))){
                // Show the list of places
               showList();
+             }
+             if (item.getTitle().toString().equalsIgnoreCase(getString(R.string.filter))){
+               FilterDialogFragment dialogFragment = new FilterDialogFragment();
+               dialogFragment.show(getFragmentManager(),"dialog_fragment");
+
              }
              return false;
            }

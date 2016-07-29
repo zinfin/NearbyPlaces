@@ -7,6 +7,8 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.design.widget.*;
 import android.support.v4.app.ActivityCompat;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
@@ -16,6 +18,7 @@ import android.widget.*;
 import com.esri.android.nearbyplaces.PlaceListener;
 import com.esri.android.nearbyplaces.R;
 import com.esri.android.nearbyplaces.data.Place;
+import com.esri.android.nearbyplaces.filter.FilterDialogFragment;
 import com.esri.android.nearbyplaces.map.MapActivity;
 import com.esri.android.nearbyplaces.util.ActivityUtils;
 
@@ -73,6 +76,11 @@ public class PlacesActivity extends AppCompatActivity
          if (item.getTitle().toString().equalsIgnoreCase(getString(R.string.map_view))){
            // Hide the list, show the map
           showMap(item);
+         }
+         if (item.getTitle().toString().equalsIgnoreCase(getString(R.string.filter))){
+           FilterDialogFragment dialogFragment = new FilterDialogFragment();
+           dialogFragment.show(getFragmentManager(),"dialog_fragment");
+
          }
          return false;
        }

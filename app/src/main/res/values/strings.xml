@@ -18,4 +18,5 @@
 
     <!-- Toast and dialog message -->
     <string name="no_places_found">No places found</string>
+    <string name="filter_dialog">Filter Places</string>
 </resources>
